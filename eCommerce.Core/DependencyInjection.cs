@@ -1,4 +1,5 @@
-﻿using eCommerce.Core.Options;
+﻿using eCommerce.Core.Entities;
+using eCommerce.Core.Options;
 using eCommerce.Core.Service;
 using eCommerce.Core.ServiceContracts;
 using Microsoft.Extensions.Configuration;
@@ -15,10 +16,14 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddCore(this IServiceCollection service, IConfiguration config)
     {
-        service.AddTransient<IUsersService, UserService>();
-        
-
-
+        service.AddScoped<ICleanerAvailabilityService, CleanerAvailabilityService>();
+        service.AddScoped<IUsersService, UserService>();
+        service.AddScoped<IServiceService, ServiceService>();
+        service.AddScoped<ILocationService, LocationService>();
+      service.AddScoped<INotificationService, NotificationService>();
+        service.AddScoped<IReviewService, ReviewService>();
+        service.AddScoped<IPaymentService, PaymentService>();
+        service.AddScoped<IBookingService, BookingService>();
         return service;
     }
 }

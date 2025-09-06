@@ -42,8 +42,8 @@ public class UserService : IUsersService
     {
         ApplicationUser user = new ApplicationUser()
         {
-            PersonName = registerRequest.PersonName, Email = registerRequest.Email,
-            Password = registerRequest.Password, Gender = registerRequest.Gender.ToString()
+            FullName = registerRequest.PersonName, Email = registerRequest.Email,
+            PasswordHash = registerRequest.Password
         };
 
         ApplicationUser? registeredUser = await

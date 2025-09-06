@@ -81,9 +81,8 @@ WHERE ur.""UserID"" = @UserId;";
             UserId = Guid.NewGuid(),
             Email = email,
 
-            Password = password,
-            PersonName = "Person Name",
-            Gender = GenderOption.Male.ToString()
+            PasswordHash = password,
+            FullName = "Person Name"
         };
     }
 }

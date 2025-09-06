@@ -1,3 +1,4 @@
+using eCommerce.Core.Entities;
 using eCommerce.Core.Options;
 using eCommerce.Core.RepositoryContracts;
 using eCommerce.Core.Service;
@@ -18,10 +19,16 @@ public static class DependencyInjection
         // Data
         services.AddTransient<DapperDbContext>();
 
-        // Repositories/Services
         services.AddTransient<IUsersRepository, UsersRepository>();
         services.AddTransient<IjwtRepository, JwtService>();
-
+        services.AddTransient<IServiceRepository, ServiceRepository>();
+        services.AddTransient<ILocationRepository, LocationRepository>();
+        services.AddTransient<INotificationRepository, NotificationRepository>();
+        services.AddTransient<ICleanerAvailabilityRepository, CleanerAvailabilityRepository>();
+        services.AddTransient<IReviewRepository, ReviewRepository>();
+        services.AddTransient<IPaymentRepository, PaymentRepository>();
+        services.AddTransient<IBookingRepository, BookingRepository>();
         return services;
     }
 }
+
