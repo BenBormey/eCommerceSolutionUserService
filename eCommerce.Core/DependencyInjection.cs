@@ -1,5 +1,7 @@
-﻿using eCommerce.Core.Service;
+﻿using eCommerce.Core.Options;
+using eCommerce.Core.Service;
 using eCommerce.Core.ServiceContracts;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -11,9 +13,11 @@ namespace eCommerce.Core;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddCore(this IServiceCollection service)
+    public static IServiceCollection AddCore(this IServiceCollection service, IConfiguration config)
     {
         service.AddTransient<IUsersService, UserService>();
+        
+
 
         return service;
     }

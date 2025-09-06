@@ -15,7 +15,9 @@ namespace eCommerce.Core.RepositoryContracts
         /// <param name="user"></param>
         /// <returns></returns>
         Task<ApplicationUser?> AddUser(ApplicationUser user);
-
+        Task<IEnumerable<string>> GetRolesAsync(Guid userId);
+        Task<Guid?> GetRoleIdByNameAsync(string roleName);
+        Task<bool> AddUserRoleAsync(Guid userId, Guid roleId);
         Task<ApplicationUser?> GetUserByEmailAndPassword(string? email, string? password);
     }
 }

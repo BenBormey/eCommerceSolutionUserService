@@ -1,21 +1,27 @@
-﻿using eCommerce.Core.RepositoryContracts;
+using eCommerce.Core.Options;
+using eCommerce.Core.RepositoryContracts;
+using eCommerce.Core.Service;
 using eCommerce.Infrastructure.DbContext;
 using eCommerce.Infrastructure.Repositories;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace eCommerce.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastruction(this IServiceCollection service)
+    public static IServiceCollection AddInfrastruction(this IServiceCollection services, IConfiguration config)
     {
-        service.AddTransient<IUsersRepository,UsersRepository>();
-        service.AddTransient<DapperDbContext>();
-        return service;
+        // Options
+        services.Configure<JwtOptions>(config.GetSection("Jwt"));
+
+        // Data
+        services.AddTransient<DapperDbContext>();
+
+        // Repositories/Services
+        services.AddTransient<IUsersRepository, UsersRepository>();
+        services.AddTransient<IjwtRepository, JwtService>();
+
+        return services;
     }
 }

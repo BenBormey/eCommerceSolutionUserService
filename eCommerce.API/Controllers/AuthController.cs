@@ -1,7 +1,9 @@
 ﻿using eCommerce.Core.DTO;
+using eCommerce.Core.RepositoryContracts;
 using eCommerce.Core.ServiceContracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 
 namespace eCommerce.API.Controllers
 {
@@ -9,10 +11,12 @@ namespace eCommerce.API.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+        private readonly IjwtRepository _jwt;
         private readonly IUsersService usersService;
-        public AuthController(IUsersService user)
+        public AuthController(IUsersService user, IjwtRepository jwt)
         {
             this.usersService = user;
+            this._jwt = jwt;
         }
         [HttpPost("register")]
        public async Task<IActionResult> Register(RegisterRequest model)
@@ -42,7 +46,9 @@ namespace eCommerce.API.Controllers
             {
                 return Unauthorized(authentication);
             }
-            return Ok(authentication);
+            var token = _jwt.GenerateToken(authentication.UserId, authentication.PersonName,  "Admin" );
+
+            return Ok(token);
 
         }
     }

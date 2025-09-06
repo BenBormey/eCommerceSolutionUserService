@@ -35,6 +35,45 @@ public class UsersRepository : IUsersRepository
        
     }
 
+    public async Task<bool> AddUserRoleAsync(Guid userId, Guid roleId)
+    {
+   
+        const string sql = @"
+INSERT INTO public.""UserRoles"" (""UserID"", ""RoleID"")
+VALUES (@UserId, @RoleId) ON CONFLICT DO NOTHING;";
+
+        var rows = await _context.DbConnection.ExecuteAsync(sql, new { UserId = userId, RoleId = roleId });
+        return rows > 0;
+    }
+
+    
+
+    public async Task<Guid?> GetRoleIdByNameAsync(string roleName)
+    {
+   
+        const string sql = @"
+SELECT ""RoleID""
+FROM public.""Roles""
+WHERE ""Name"" = @Name
+LIMIT 1;";
+
+        return await _context.DbConnection.ExecuteScalarAsync<Guid?>(sql, new { Name = roleName });
+    }
+
+    
+
+    public async Task<IEnumerable<string>> GetRolesAsync(Guid userId)
+    {
+        const string sql = @"
+SELECT r.""Name""
+FROM public.""UserRoles"" ur
+JOIN public.""Roles"" r ON r.""RoleID"" = ur.""RoleID""
+WHERE ur.""UserID"" = @UserId;";
+
+        var roles = await _context.DbConnection.QueryAsync<string>(sql, new { UserId = userId });
+        return roles ?? Enumerable.Empty<string>();
+    }
+
     public async Task<ApplicationUser?> GetUserByEmailAndPassword(string? email, string? password)
     {
         return new ApplicationUser()

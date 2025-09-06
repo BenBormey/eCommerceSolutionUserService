@@ -3,18 +3,20 @@ using eCommerce.Core.DTO;
 using eCommerce.Core.Entities;
 using eCommerce.Core.RepositoryContracts;
 using eCommerce.Core.ServiceContracts;
+using System.Data;
 
 namespace eCommerce.Core.Service;
 
 public class UserService : IUsersService
 {
+    private readonly IjwtRepository _jwt;
     private readonly IUsersRepository _usersRepository;
     private readonly IMapper _mapper;
-    public UserService(IUsersRepository _user,IMapper mapper)
+    public UserService(IUsersRepository _user,IMapper mapper, IjwtRepository jwt)
     {
         this._usersRepository = _user;
         this._mapper = mapper;
-        
+        _jwt = jwt;
     }
     public async Task<AuthenticationResponse?> Login(LoginRequest loginRequest)
     {
@@ -24,12 +26,16 @@ public class UserService : IUsersService
         {
             return null;
         }
-      //  return new AuthenticationResponse(user.UserId, user.Email, user.PersonName,user.Gender,"token",Sucess: true);
-      return _mapper.Map<AuthenticationResponse>(user) with
+        //  return new AuthenticationResponse(user.UserId, user.Email, user.PersonName,user.Gender,"token",Sucess: true);
+
+        var roles = "Admin";
+        var token = "";
+
+        return _mapper.Map<AuthenticationResponse>(user) with
       {
           Sucess =true,
-          Token = "token"
-      }; 
+          Token = token
+        }; 
     }
 
     public async Task<AuthenticationResponse?> Register(RegisterRequest registerRequest)

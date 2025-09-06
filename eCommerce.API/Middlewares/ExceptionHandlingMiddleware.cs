@@ -1,11 +1,10 @@
-﻿using Microsoft.AspNetCore.Builder;
+using System.Net;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace eCommerce.API.Middlewares;
 
-// You may need to install the Microsoft.AspNetCore.Http.Abstractions package into your project
 public class ExceptionHandlingMiddleware
 {
     private readonly RequestDelegate _next;
@@ -14,37 +13,29 @@ public class ExceptionHandlingMiddleware
     public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
     {
         _next = next;
-        this._logger = logger;  
+        _logger = logger;
     }
 
-    public async Task Invoke(HttpContext httpContext)
+    public async Task InvokeAsync(HttpContext context)
     {
         try
         {
-
-            await _next(httpContext);
+            await _next(context);
         }
         catch (Exception ex)
         {
-            //Log the excepotion  type and message
-            _logger.LogError($"{ex.GetType().ToString()} : {ex.Message}");
-
-
-            if(ex.InnerException is not null)
+            _logger.LogError(ex, "Unhandled exception");
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            await context.Response.WriteAsJsonAsync(new
             {
-                // Log the inner exception type and mesage
-                _logger.LogError($"{ex.InnerException.GetType().ToString()} : {ex.InnerException.Message}");
-
-
-            }
-            httpContext.Response.StatusCode = 500;
-            // Internal Server erro
-            await httpContext.Response.WriteAsJsonAsync(new {Message = ex.Message , Type = ex.GetType().ToString()});
+                Message = ex.Message,
+                Type = ex.GetType().ToString()
+            });
         }
     }
 }
 
-// Extension method used to add the middleware to the HTTP request pipeline.
 public static class ExceptionHandlingMiddlewareExtensions
 {
     public static IApplicationBuilder UseExceptionHandlingMiddleware(this IApplicationBuilder builder)
