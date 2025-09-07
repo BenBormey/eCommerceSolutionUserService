@@ -12,8 +12,8 @@ namespace eCommerce.Core.DTO.Booking
         public Guid CustomerId { get; set; }
         public Guid CleanerId { get; set; }
         public int ServiceId { get; set; }
-        public DateOnly BookingDate { get; set; }
-        public TimeOnly TimeSlot { get; set; }              // DB: time without time zone
+        public DateTime BookingDate { get; set; }
+        public TimeSpan TimeSlot { get; set; }              // DB: time without time zone
         public int? LocationId { get; set; }
         public string? AddressDetail { get; set; }
         public string Status { get; set; } = "Pending";

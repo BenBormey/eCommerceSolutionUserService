@@ -14,8 +14,8 @@ namespace eCommerce.Core.DTO.Booking
         public Guid? CustomerId { get; set; } 
         public Guid? CleanerId { get; set; }
         public int? ServiceId { get; set; }
-        public DateOnly? BookingDate { get; set; }
-        public TimeOnly? TimeSlot { get; set; }
+        public DateTime? BookingDate { get; set; }
+        public TimeSpan? TimeSlot { get; set; }
         public int? LocationId { get; set; }
         [MaxLength(500)] public string? AddressDetail { get; set; }
         [MaxLength(500)] public string? Notes { get; set; }

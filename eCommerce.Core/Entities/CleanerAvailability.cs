@@ -16,8 +16,8 @@ namespace eCommerce.Core.Entities
         public Guid CleanerId { get; set; }
         public ApplicationUser Cleaner { get; set; } = null!;
 
-        public DateOnly AvailableDate { get; set; }
-        public TimeOnly StartTime { get; set; }
-        public TimeOnly EndTime { get; set; }
+        public DateTime AvailableDate { get; set; }
+        public TimeSpan StartTime { get; set; }
+        public TimeSpan EndTime { get; set; }
     }
 }

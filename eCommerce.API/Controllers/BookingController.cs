@@ -32,8 +32,8 @@ namespace eCommerce.API.Controllers
         [ProducesResponseType(typeof(IEnumerable<BookingDTO>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetByCustomer(
             Guid customerId,
-            [FromQuery] DateOnly? from,
-            [FromQuery] DateOnly? to)
+            [FromQuery] DateTime? from,
+            [FromQuery] DateTime? to)
         {
             var items = await _service.GetByCustomerAsync(customerId, from, to);
             return Ok(items);
@@ -44,8 +44,8 @@ namespace eCommerce.API.Controllers
         [ProducesResponseType(typeof(IEnumerable<BookingDTO>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetByCleaner(
             Guid cleanerId,
-            [FromQuery] DateOnly? from,
-            [FromQuery] DateOnly? to)
+            [FromQuery] DateTime? from,
+            [FromQuery] DateTime? to)
         {
             var items = await _service.GetByCleanerAsync(cleanerId, from, to);
             return Ok(items);
@@ -56,7 +56,7 @@ namespace eCommerce.API.Controllers
         [ProducesResponseType(typeof(BookingDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create([FromBody] BookingCreateDTO dto)
-        {
+      {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var created = await _service.CreateAsync(dto);
