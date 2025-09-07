@@ -84,11 +84,11 @@ ORDER BY booking_date DESC, time_slot DESC;";
         {
             const string sql = @"
 INSERT INTO public.bookings
-  (booking_id, customer_id, cleaner_id, service_id, booking_date, time_slot,
-   location_id, address_detail, status, notes, created_at)
+(booking_id, customer_id, cleaner_id, service_id, booking_date, time_slot,
+ location_id, address_detail, status, notes, created_at)
 VALUES
-  (@Id, @CustomerId, @CleanerId, @ServiceId, @BookingDate, NOW(),
-   @LocationId, @AddressDetail, 'Pending', @Notes, NOW())
+(@Id, @CustomerId, @CleanerId, @ServiceId, @BookingDate, @TimeSlot,
+ @LocationId, @AddressDetail, 'pending', @Notes, NOW())
 RETURNING
   booking_id     AS ""BookingId"",
   customer_id    AS ""CustomerId"",
@@ -100,23 +100,31 @@ RETURNING
   address_detail AS ""AddressDetail"",
   status         AS ""Status"",
   notes          AS ""Notes"",
-  created_at     AS ""CreatedAt"";";
+  created_at     AS ""CreatedAt"";
+";
 
-            var p = new
+            //var status = string.IsNullOrWhiteSpace(dto.Status) ? "pending" : dto.Status.Trim().ToLowerInvariant();
+            //if (status == "inprogress") status = "in_progress"; // match your CHECK
+
+            var param = new
             {
                 Id = Guid.NewGuid(),
                 dto.CustomerId,
                 dto.CleanerId,
                 dto.ServiceId,
-                // Handlers ensure correct mapping:
-                dto.BookingDate,          // DateOnly -> pg date
-                dto.TimeSlot,             // TimeOnly -> pg time without time zone
+                BookingDate = dto.BookingDate,// DateOnly → DateTime
+                TimeSlot = dto.TimeSlot,                    // TimeOnly → TimeSpan
+                                                                          // TimeOnly -> TimeSpan
                 dto.LocationId,
                 dto.AddressDetail,
+                                                          // lowercase to pass CHECK
                 dto.Notes
             };
 
-            return await _db.DbConnection.QuerySingleAsync<BookingDTO>(sql, p);
+            // connection is NpgsqlConnection
+            var result = await _db.DbConnection.QuerySingleAsync<BookingDTO>(sql, param);
+            return result;
+
         }
 
         public async Task<BookingDTO?> Update(Guid bookingId, BookingUpdateDTO dto)

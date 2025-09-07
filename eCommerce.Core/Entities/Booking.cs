@@ -22,8 +22,8 @@ namespace eCommerce.Core.Entities
         public int ServiceId { get; set; }
         public Services Service { get; set; } = null!;
 
-        public DateOnly BookingDate { get; set; }
-        [MaxLength(50)] public string? TimeSlot { get; set; }
+        public DateTime BookingDate { get; set; }
+         public TimeOnly TimeSlot { get; set; }
 
         public int? LocationId { get; set; }
         public Location? Location { get; set; }

@@ -56,7 +56,7 @@ namespace eCommerce.API.Controllers
         [ProducesResponseType(typeof(BookingDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create([FromBody] BookingCreateDTO dto)
-        {
+      {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var created = await _service.CreateAsync(dto);
