@@ -1,7 +1,9 @@
+using Dapper;
 using eCommerce.Core.Entities;
 using eCommerce.Core.Options;
 using eCommerce.Core.RepositoryContracts;
 using eCommerce.Core.Service;
+
 using eCommerce.Infrastructure.DbContext;
 using eCommerce.Infrastructure.Repositories;
 using Microsoft.Extensions.Configuration;
@@ -14,6 +16,9 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastruction(this IServiceCollection services, IConfiguration config)
     {
         // Options
+
+        //SqlMapper.AddTypeHandler(new DateOnlyHandler());
+        //SqlMapper.AddTypeHandler(new TimeOnlyHandler());
         services.Configure<JwtOptions>(config.GetSection("Jwt"));
 
         // Data

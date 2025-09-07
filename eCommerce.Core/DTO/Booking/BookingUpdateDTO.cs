@@ -11,7 +11,7 @@ namespace eCommerce.Core.DTO.Booking
     {
         [Required] public Guid BookingId { get; set; }
 
-        public Guid? CustomerId { get; set; }   // usually unchanged, but kept flexible
+        public Guid? CustomerId { get; set; } 
         public Guid? CleanerId { get; set; }
         public int? ServiceId { get; set; }
         public DateOnly? BookingDate { get; set; }

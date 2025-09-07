@@ -1,13 +1,14 @@
-using eCommerce.Infrastructure;
-using eCommerce.Core;
-using eCommerce.API.Middlewares;
-using eCommerce.Core.Options;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.Extensions.Options;
-using System.Text;
 using AutoMapper;
+using eCommerce.API;
+using eCommerce.API.Middlewares;
+using eCommerce.Core;
 using eCommerce.Core.Mappers;
+using eCommerce.Core.Options;
+using eCommerce.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// eCommerce.API/Program.cs
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(o =>
+    {
+      
+      
+    });
+
+// keep the rest (Swagger, DI, etc.)
 
 // Layer registrations
 builder.Services.AddCore(builder.Configuration);

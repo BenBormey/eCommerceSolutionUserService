@@ -14,6 +14,9 @@ namespace eCommerce.Core.DTO.Booking
         [Required] public int ServiceId { get; set; }
         [Required] public DateOnly BookingDate { get; set; }
         [Required] public TimeOnly TimeSlot { get; set; }
+
+
+
         public int? LocationId { get; set; }
         [MaxLength(500)] public string? AddressDetail { get; set; }
         [MaxLength(500)] public string? Notes { get; set; }
