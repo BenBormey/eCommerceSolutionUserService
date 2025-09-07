@@ -10,8 +10,8 @@ namespace eCommerce.Core.ServiceContracts
     public interface IBookingService
     {
         Task<BookingDTO?> GetByIdAsync(Guid bookingId);
-        Task<IEnumerable<BookingDTO>> GetByCustomerAsync(Guid customerId, DateOnly? from, DateOnly? to);
-        Task<IEnumerable<BookingDTO>> GetByCleanerAsync(Guid cleanerId, DateOnly? from, DateOnly? to);
+        Task<IEnumerable<BookingDTO>> GetByCustomerAsync(Guid customerId, DateTime? from, DateTime? to);
+        Task<IEnumerable<BookingDTO>> GetByCleanerAsync(Guid cleanerId, DateTime? from, DateTime? to);
 
         Task<BookingDTO> CreateAsync(BookingCreateDTO dto);
         Task<BookingDTO?> UpdateAsync(Guid bookingId, BookingUpdateDTO dto);

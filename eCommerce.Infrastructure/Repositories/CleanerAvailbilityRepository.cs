@@ -32,7 +32,7 @@ namespace eCommerce.Infrastructure.Repositories
         }
 
         // Read by cleaner (optional date range)
-        public async Task<IEnumerable<CleanerAvailabilityDTO>> GetByCleaner(Guid cleanerId, DateOnly? from, DateOnly? to)
+        public async Task<IEnumerable<CleanerAvailabilityDTO>> GetByCleaner(Guid cleanerId, DateTime? from, DateTime? to)
         {
             const string sql = @"
                 SELECT
@@ -109,7 +109,7 @@ namespace eCommerce.Infrastructure.Repositories
         }
 
         // Overlap detection (same cleaner + same date + time overlap)
-        public async Task<bool> HasOverlap(Guid cleanerId, DateOnly date, TimeOnly start, TimeOnly end, int? excludeAvailabilityId = null)
+        public async Task<bool> HasOverlap(Guid cleanerId, DateTime date, TimeSpan start, TimeSpan end, int? excludeAvailabilityId = null)
         {
             const string sql = @"
                 SELECT EXISTS(

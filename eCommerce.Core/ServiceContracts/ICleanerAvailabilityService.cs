@@ -11,7 +11,7 @@ namespace eCommerce.Core.ServiceContracts
     {
         Task<CleanerAvailabilityDTO?> GetByIdAsync(int availabilityId);
         Task<IEnumerable<CleanerAvailabilityDTO>> GetByCleanerAsync(
-            Guid cleanerId, DateOnly? from = null, DateOnly? to = null);
+            Guid cleanerId, DateTime? from = null, DateTime? to = null);
 
         Task<CleanerAvailabilityDTO> CreateAsync(CleanerAvailabilityCreateDTO dto);
 
@@ -22,7 +22,7 @@ namespace eCommerce.Core.ServiceContracts
         Task<bool> DeleteAsync(int availabilityId);
 
 
-        Task<bool> IsCleanerFreeAsync(Guid cleanerId, DateOnly date, TimeOnly startTime, TimeOnly endTime);
+        Task<bool> IsCleanerFreeAsync(Guid cleanerId, DateTime date, TimeSpan startTime, TimeSpan endTime);
 
     }
 }

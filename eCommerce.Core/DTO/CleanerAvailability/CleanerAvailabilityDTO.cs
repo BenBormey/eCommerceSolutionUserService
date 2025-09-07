@@ -10,8 +10,8 @@ namespace eCommerce.Core.DTO.CleanerAvailability
     {
         public int AvailabilityId { get; set; }
         public Guid CleanerId { get; set; }
-        public DateOnly AvailableDate { get; set; }
-        public TimeOnly StartTime { get; set; }
-        public TimeOnly EndTime { get; set; }
+        public DateTime AvailableDate { get; set; }
+        public TimeSpan StartTime { get; set; }
+        public TimeSpan EndTime { get; set; }
     }
 }

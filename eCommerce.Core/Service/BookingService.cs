@@ -16,9 +16,9 @@ namespace eCommerce.Core.Service
         public BookingService(IBookingRepository repo) => _repo = repo;
 
         public Task<BookingDTO?> GetByIdAsync(Guid bookingId) => _repo.GetById(bookingId);
-        public Task<IEnumerable<BookingDTO>> GetByCustomerAsync(Guid customerId, DateOnly? from, DateOnly? to)
+        public Task<IEnumerable<BookingDTO>> GetByCustomerAsync(Guid customerId, DateTime? from, DateTime? to)
             => _repo.GetByCustomer(customerId, from, to);
-        public Task<IEnumerable<BookingDTO>> GetByCleanerAsync(Guid cleanerId, DateOnly? from, DateOnly? to)
+        public Task<IEnumerable<BookingDTO>> GetByCleanerAsync(Guid cleanerId, DateTime? from, DateTime? to)
             => _repo.GetByCleaner(cleanerId, from, to);
 
         public async Task<BookingDTO> CreateAsync(BookingCreateDTO dto)

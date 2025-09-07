@@ -23,7 +23,7 @@ namespace eCommerce.Core.Service
             => _repo.GetById(availabilityId);
 
         public Task<IEnumerable<CleanerAvailabilityDTO>> GetByCleanerAsync(
-            Guid cleanerId, DateOnly? from = null, DateOnly? to = null)
+            Guid cleanerId, DateTime? from = null, DateTime? to = null)
             => _repo.GetByCleaner(cleanerId, from, to);
 
         // CREATE
@@ -58,18 +58,18 @@ namespace eCommerce.Core.Service
             => _repo.Delete(availabilityId);
 
         // UTILITY
-        public async Task<bool> IsCleanerFreeAsync(Guid cleanerId, DateOnly date, TimeOnly startTime, TimeOnly endTime)
+        public async Task<bool> IsCleanerFreeAsync(Guid cleanerId, DateTime date, TimeSpan startTime, TimeSpan endTime)
         {
             if (!IsValidRange(startTime, endTime)) return false;
             return !await _repo.HasOverlap(cleanerId, date, startTime, endTime);
         }
 
-        private static void ValidateTimes(TimeOnly start, TimeOnly end)
+        private static void ValidateTimes(TimeSpan start, TimeSpan end)
         {
             if (!IsValidRange(start, end))
                 throw new ArgumentException("EndTime must be after StartTime.");
         }
 
-        private static bool IsValidRange(TimeOnly start, TimeOnly end) => end > start;
+        private static bool IsValidRange(TimeSpan start, TimeSpan end) => end > start;
     }
 }

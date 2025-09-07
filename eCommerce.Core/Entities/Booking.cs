@@ -23,7 +23,7 @@ namespace eCommerce.Core.Entities
         public Services Service { get; set; } = null!;
 
         public DateTime BookingDate { get; set; }
-         public TimeOnly TimeSlot { get; set; }
+         public TimeSpan TimeSlot { get; set; }
 
         public int? LocationId { get; set; }
         public Location? Location { get; set; }

@@ -32,8 +32,8 @@ namespace eCommerce.API.Controllers
         [ProducesResponseType(typeof(IEnumerable<CleanerAvailabilityDTO>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetByCleaner(
             Guid cleanerId,
-            [FromQuery] DateOnly? from,
-            [FromQuery] DateOnly? to)
+            [FromQuery] DateTime? from,
+            [FromQuery] DateTime? to)
         {
             var items = await _service.GetByCleanerAsync(cleanerId, from, to);
             return Ok(items); // empty array if none
@@ -44,9 +44,9 @@ namespace eCommerce.API.Controllers
         [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
         public async Task<IActionResult> IsFree(
             [FromQuery] Guid cleanerId,
-            [FromQuery] DateOnly date,
-            [FromQuery] TimeOnly startTime,
-            [FromQuery] TimeOnly endTime)
+            [FromQuery] DateTime date,
+            [FromQuery] TimeSpan startTime,
+            [FromQuery] TimeSpan endTime)
         {
             var free = await _service.IsCleanerFreeAsync(cleanerId, date, startTime, endTime);
             return Ok(new { cleanerId, date, startTime, endTime, free });

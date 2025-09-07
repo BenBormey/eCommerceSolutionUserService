@@ -32,7 +32,7 @@ WHERE booking_id = @Id;";
             return await _db.DbConnection.QueryFirstOrDefaultAsync<BookingDTO>(sql, new { Id = bookingId });
         }
 
-        public async Task<IEnumerable<BookingDTO>> GetByCustomer(Guid customerId, DateOnly? from, DateOnly? to)
+        public async Task<IEnumerable<BookingDTO>> GetByCustomer(Guid customerId, DateTime? from, DateTime? to)
         {
             const string sql = @"
 SELECT
@@ -56,7 +56,7 @@ ORDER BY booking_date DESC, time_slot DESC;";
             return await _db.DbConnection.QueryAsync<BookingDTO>(sql, new { CustomerId = customerId, From = from, To = to });
         }
 
-        public async Task<IEnumerable<BookingDTO>> GetByCleaner(Guid cleanerId, DateOnly? from, DateOnly? to)
+        public async Task<IEnumerable<BookingDTO>> GetByCleaner(Guid cleanerId, DateTime? from, DateTime? to)
         {
             const string sql = @"
 SELECT
@@ -112,9 +112,9 @@ RETURNING
                 dto.CustomerId,
                 dto.CleanerId,
                 dto.ServiceId,
-                BookingDate = dto.BookingDate,// DateOnly → DateTime
-                TimeSlot = dto.TimeSlot,                    // TimeOnly → TimeSpan
-                                                                          // TimeOnly -> TimeSpan
+                BookingDate = dto.BookingDate,// DateTime → DateTime
+                TimeSlot = dto.TimeSlot,                    // TimeSpan → TimeSpan
+                                                                          // TimeSpan -> TimeSpan
                 dto.LocationId,
                 dto.AddressDetail,
                                                           // lowercase to pass CHECK
