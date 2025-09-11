@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 namespace eCommerce.Core.DTO;
 
 public record AuthenticationResponse(
-    Guid UserId,
+     Guid UserId,
     string? Email,
-    string? PersonName,
-    string? Gender,
+    string? Fullname,
     string? Token,
-    bool Sucess
+    bool Success,
+    string? Role = null
 )
 {
     public AuthenticationResponse() : this(default,default,default,default,default,default)

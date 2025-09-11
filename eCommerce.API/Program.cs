@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using eCommerce.API;
 using eCommerce.API.Middlewares;
 using eCommerce.Core;
@@ -40,13 +40,15 @@ builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 var jwtOpts = builder.Configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();
 var keyBytes = Encoding.UTF8.GetBytes(jwtOpts.SecretKey ?? string.Empty);
 builder.Services.AddCors(options =>
- {
-     options.AddPolicy("AllowAll",
-         policy => policy
-             .AllowAnyOrigin()
-             .AllowAnyMethod()
-             .AllowAnyHeader());
- });
+{
+    options.AddPolicy("AllowAll", policy =>
+        policy
+            .AllowAnyOrigin()   // if you don’t use cookies
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+    );
+});
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -74,11 +76,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
 app.UseExceptionHandlingMiddleware();
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseStaticFiles();
 app.UseCors("AllowAll");
 app.MapControllers();
 

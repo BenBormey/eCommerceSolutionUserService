@@ -4,6 +4,7 @@ using eCommerce.Core.ServiceContracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
+using System.Linq;
 
 namespace eCommerce.API.Controllers
 {
@@ -19,37 +20,55 @@ namespace eCommerce.API.Controllers
             this._jwt = jwt;
         }
         [HttpPost("register")]
-       public async Task<IActionResult> Register(RegisterRequest model)
+        public async Task<IActionResult> Register(RegisterRequest model)
         {
-            if(model == null)
+            if (model == null)
             {
                 return BadRequest("Invalid registration data");
             }
-      AuthenticationResponse? authentication =      await usersService.Register(model);
-            if (authentication == null || authentication.Sucess ==false)
+            AuthenticationResponse? authentication = await usersService.Register(model);
+            if (authentication == null || authentication.Success == false)
             {
                 return BadRequest(authentication);
             }
             return Ok(authentication);
         }
-        [HttpPost("Login")]
-       public async Task<IActionResult> Login(LoginRequest login)
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest login)
         {
-            if(login == null)
+            if (login is null || string.IsNullOrWhiteSpace(login.Email) || string.IsNullOrWhiteSpace(login.Password))
+                return BadRequest(new { title = "Invalid email or password" });
+
+            var auth = await usersService.Login(login);
+            if (auth is null || auth.Success == false)
+                return Unauthorized(new { title = "Invalid email or password" });
+
+            var roles = !string.IsNullOrWhiteSpace(auth.Role)
+        ? new[] { auth.Role }       // wrap single string as array
+        : new[] { "Customer" };
+
+
+            // GenerateToken returns STRING
+            var token = _jwt.GenerateToken(auth.UserId, auth.Fullname, roles.ToString());
+
+            // If you want expiresAt but service doesn't return it, compute from config:
+            var expiresAt = DateTime.UtcNow.AddHours(1);
+
+            return Ok(new
             {
-                return BadRequest("Invalid email or password");
-
-            }
-            AuthenticationResponse? authentication = await usersService.Login(login);
-
-            if(authentication == null || authentication.Sucess ==false)
-            {
-                return Unauthorized(authentication);
-            }
-            var token = _jwt.GenerateToken(authentication.UserId, authentication.PersonName,  "Admin" );
-
-            return Ok(token);
-
+                token,
+                expiresAt,
+                user = new
+                {
+                    id = auth.UserId,
+                    fullName = auth.Fullname,
+                    email = auth.Email,
+                    roles
+                }
+            });
         }
+
+
     }
+    
 }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BCrypt.Net;
 using eCommerce.Core.DTO;
 using eCommerce.Core.Entities;
 using eCommerce.Core.RepositoryContracts;
@@ -33,21 +34,27 @@ public class UserService : IUsersService
 
         return _mapper.Map<AuthenticationResponse>(user) with
       {
-          Sucess =true,
+          Success =true,
           Token = token
         }; 
     }
 
     public async Task<AuthenticationResponse?> Register(RegisterRequest registerRequest)
     {
-        ApplicationUser user = new ApplicationUser()
+        ApplicationUser user = new ApplicationUser
         {
-            FullName = registerRequest.PersonName, Email = registerRequest.Email,
-            PasswordHash = registerRequest.Password
+            FullName = registerRequest.FullName,
+            Email = registerRequest.Email,
+            Phone = registerRequest.Phone,
+            Role = registerRequest.Role ?? "Customer",
+            IsActive = true,
+            Status = "Active",
+
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password)
         };
 
-        ApplicationUser? registeredUser = await
-         _usersRepository.AddUser(user);
+        ApplicationUser? registeredUser = await _usersRepository.AddUser(user);
+
         if (registeredUser == null)
         {
             return null;
@@ -55,7 +62,7 @@ public class UserService : IUsersService
         }
         return _mapper.Map<AuthenticationResponse?>(user) with
         {
-            Sucess = true,
+            Success = true,
             Token = "token"
         };
     //    return new AuthenticationResponse(registeredUser.UserId,registeredUser.Email,registeredUser.PersonName,registeredUser.Gender, "token",true);

@@ -8,11 +8,16 @@ public class ApplicationUserMappingProfile :Profile
 {
     public ApplicationUserMappingProfile()
     {
+    
+        CreateMap<ApplicationUser, UserSummaryDTO>();
+
         CreateMap<ApplicationUser, AuthenticationResponse>()
-               .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
-               .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
-               .ForMember(dest => dest.PersonName, opt => opt.MapFrom(src => src.FullName))
-               .ForMember(dest => dest.Token, opt => opt.Ignore())
-               .ForMember(dest => dest.Sucess, opt => opt.Ignore());
+            .ForMember(d => d.Fullname, m => m.MapFrom(s => s.FullName ?? ""))
+            .ForMember(d => d.Email, m => m.MapFrom(s => s.Email ?? ""))
+            .ForMember(d => d.Role, m => m.MapFrom(s => s.Role ?? "Customer"))
+            .ForMember(d => d.Token, m => m.Ignore())
+            .ForMember(d => d.Success, m => m.MapFrom(_ => true));
+           
     }
 }
+
