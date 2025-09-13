@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="DTO\NewFolder\" />
     <Folder Include="DTO\Service\NewFolder\" />
   </ItemGroup>
 
