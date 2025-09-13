@@ -49,8 +49,8 @@ namespace eCommerce.Infrastructure.Repositories
     s.description,
     s.price,
     s.duration_minutes as DurationMinutes,
-    s.image_url,
-    s.is_active,
+    s.image_url as ImageUrl,
+    s.is_active as IsActive,
     s.created_at
 FROM public.services AS s
 ORDER BY s.created_at DESC;
