@@ -63,6 +63,8 @@ namespace eCommerce.API.Controllers
                     id = auth.UserId,
                     fullName = auth.Fullname,
                     email = auth.Email,
+                    phone= auth.phone,
+                    
                     roles
                 }
             });

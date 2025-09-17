@@ -3,6 +3,7 @@ using eCommerce.Core.ServiceContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace eCommerce.API.Controllers
 {
@@ -29,6 +30,29 @@ namespace eCommerce.API.Controllers
             return Ok(item);
         }
 
+        [HttpGet("my-booking")]
+        public async Task<IActionResult> GetByBooking()
+        {
+            // ទាញ Claim "sub" ឬ ClaimTypes.NameIdentifier
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim))
+                return Unauthorized();
+
+            // បម្លែងទៅជា Guid
+            if (!Guid.TryParse(userIdClaim, out var userId))
+                return BadRequest("Invalid user id in token");
+
+            // Query DB ដើម្បីយក booking របស់ userId
+            var bookings = await _service.GetByIdAsync(userId);
+
+            return Ok(bookings);
+        }
+       
+
+
+
+
         // GET: api/Booking/customer/{customerId}?from=2025-09-07&to=2025-09-10
         [HttpGet("customer/{customerId:guid}")]
         [ProducesResponseType(typeof(IEnumerable<BookingDTO>), StatusCodes.Status200OK)]
@@ -52,6 +76,9 @@ namespace eCommerce.API.Controllers
             var items = await _service.GetByCleanerAsync(cleanerId, from, to);
             return Ok(items);
         }
+       
+
+
 
         // POST: api/Booking
         [HttpPost]
@@ -92,17 +119,44 @@ namespace eCommerce.API.Controllers
             return NoContent();
         }
 
-        // PATCH: api/Booking/{id}/confirm
+
+
+        //[Authorize(Roles = "Cleaner")]
+        //// PATCH: api/Booking/{id}/confirm
+        //[HttpPatch("{id:guid}/confirm")]
+        //[ProducesResponseType(typeof(BookingDTO), StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status404NotFound)]
+        //public async Task<IActionResult> Confirm(Guid id)
+        //{
+        //    var ok = await _service.ConfirmAsync(id);
+        //    if (!ok) return NotFound($"Booking {id} not found.");
+        //    var b = await _service.GetByIdAsync(id);
+        //    return Ok(b);
+        //}
+
+
         [HttpPatch("{id:guid}/confirm")]
         [ProducesResponseType(typeof(BookingDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> Confirm(Guid id)
         {
-            var ok = await _service.ConfirmAsync(id);
-            if (!ok) return NotFound($"Booking {id} not found.");
+            // get cleaner id from JWT
+            var cleanerIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                                 ?? User.FindFirst(ClaimTypes.Name)?.Value;
+            if (!Guid.TryParse(cleanerIdClaim, out var cleanerId))
+                return Unauthorized("Invalid cleaner identity.");
+
+            var ok = await _service.ConfirmAsync(id, cleanerId);   // pass cleanerId
+            if (!ok) return Conflict("Booking is not Pending or already confirmed.");
+
             var b = await _service.GetByIdAsync(id);
+            if (b is null) return NotFound($"Booking {id} not found.");
             return Ok(b);
         }
+
+
+
 
         // PATCH: api/Booking/{id}/complete
         [HttpPatch("{id:guid}/complete")]
@@ -110,7 +164,11 @@ namespace eCommerce.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Complete(Guid id)
         {
-            var ok = await _service.CompleteAsync(id);
+            var cleanerIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                               ?? User.FindFirst(ClaimTypes.Name)?.Value;
+            if (!Guid.TryParse(cleanerIdClaim, out var cleanerId))
+                return Unauthorized("Invalid cleaner identity.");
+            var ok = await _service.CompleteAsync(id,cleanerId);
             if (!ok) return NotFound($"Booking {id} not found.");
             var b = await _service.GetByIdAsync(id);
             return Ok(b);
@@ -122,11 +180,30 @@ namespace eCommerce.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Cancel(Guid id)
         {
-            var ok = await _service.CancelAsync(id);
+            var cleanerIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                               ?? User.FindFirst(ClaimTypes.Name)?.Value;
+            if (!Guid.TryParse(cleanerIdClaim, out var cleanerId))
+                return Unauthorized("Invalid cleaner identity.");
+            var ok = await _service.CancelAsync(id, cleanerId);
             if (!ok) return NotFound($"Booking {id} not found.");
             var b = await _service.GetByIdAsync(id);
             return Ok(b);
         }
+
+
+        //[Authorize(Roles = "Cleaner")]
+        [HttpGet("for-cleaner")]
+        [ProducesResponseType(typeof(IEnumerable<BookingDTO>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> ListForCleaner( string status = "pending",
+                                                 DateTime? from = null,
+                                                 DateTime? to = null)
+        {
+         
+            var items = await _service.ListForCleanerAsync( status, from, to);
+            return Ok(items);
+        }
+        
+
     }
 }
 
