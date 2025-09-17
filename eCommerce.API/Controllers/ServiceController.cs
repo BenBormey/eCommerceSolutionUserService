@@ -1,11 +1,13 @@
 ﻿using eCommerce.Core.DTO.Service;
 using eCommerce.Core.ServiceContracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eCommerce.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ServiceController : ControllerBase
     {
         private readonly IServiceService _serviceService;
