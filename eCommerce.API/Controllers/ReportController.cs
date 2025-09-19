@@ -98,6 +98,12 @@ namespace eCommerce.API.Controllers
             var result = await _reportingService.GetLocationReportAsync();
             return Ok(result);
         }
+        [HttpGet("Top-Service")]
+        public async Task<ActionResult<IReadOnlyList<ServicePopularityDTO>>> GetservicePopularity()
+        {
+            var result = await _reportingService.GetServicePopularity();
+            return Ok(result);  
+        }
 
     }
     

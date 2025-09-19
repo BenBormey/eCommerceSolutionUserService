@@ -7,7 +7,7 @@ namespace eCommerce.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class ServiceController : ControllerBase
     {
         private readonly IServiceService _serviceService;
