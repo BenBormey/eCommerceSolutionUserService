@@ -11,7 +11,8 @@ namespace eCommerce.Core.DTO.NewFolder
         public Guid PaymentId { get; set; }
         public Guid BookingId { get; set; }
         public decimal Amount { get; set; }
-        public string Method { get; set; } = null!;
+        public string? Method { get; set; }
+        public string? PaymentStatus { get; set; }   // Pending / Paid / Failed ...
         public string? TransactionId { get; set; }
         public DateTime? PaidAt { get; set; }
         public DateTime CreatedAt { get; set; }

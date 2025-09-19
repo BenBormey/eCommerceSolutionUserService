@@ -9,11 +9,11 @@ namespace eCommerce.Core.DTO.Payment
 {
     public class PaymentUpdateDTO
     {
-        [Required] public Guid PaymentId { get; set; }
         public decimal? Amount { get; set; }
-        [MaxLength(50)] public string? Method { get; set; }
-        [MaxLength(120)] public string? TransactionId { get; set; }
-        public DateTime? PaidAt { get; set; }   // set/clear paid time
+        public string? Method { get; set; }
+        public string? PaymentStatus { get; set; }
+        public string? TransactionId { get; set; }
+        public DateTime? PaidAt { get; set; }
 
     }
 }

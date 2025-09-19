@@ -25,6 +25,10 @@ namespace eCommerce.Core.ServiceContracts
         Task<IReadOnlyList<PaymentReportRow>> GetPaymentReportAsync(DateTime? fromDate, DateTime? toDate);
         Task<IReadOnlyList<LocationReportRow>> GetLocationReportAsync();
         Task<IReadOnlyList<ServicePopularityDTO>> GetServicePopularity();
+        Task<IReadOnlyList<overview>> overviews();
+        Task<IReadOnlyList<StatusBreakdownDTO>> StatusBreakdown();
+        Task<IReadOnlyList<RecentBookingItemDTO>> RecentBooking();
+
 
     }
 }

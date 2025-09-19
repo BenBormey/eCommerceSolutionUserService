@@ -17,7 +17,7 @@ namespace eCommerce.Infrastructure.Repositories
         private readonly DapperDbContext _context;
         public ReportRepository(DapperDbContext context)
         {
-            this._context = context;
+             this._context = context;
 
         }
         public async Task<IReadOnlyList<CustomerReportRow>> GetCustomerReportAsync(DateTime? fromDate, DateTime? toDate, string? search, string? sort, int skip, int take)
@@ -36,7 +36,6 @@ namespace eCommerce.Infrastructure.Repositories
                     break;
             }
 
-            // បើ function ត្រូវ date-ONLY, ដាក់ Date ទេ (កាត់ Time ចេញ)
             DateTime? from = fromDate?.Date;
             DateTime? to = toDate?.Date;
 
@@ -191,6 +190,73 @@ ORDER BY TotalBookings DESC, TotalRevenue DESC";
 
             var row = await _context.DbConnection.QueryAsync<ServicePopularityDTO>(sql);
             return row.AsList();
+        }
+
+        public async Task<IReadOnlyList<overview>> overviews()
+        {
+            const string sql = @"
+
+                WITH base AS (
+  SELECT
+    b.booking_id,
+    lower(b.status) AS status,
+    b.created_at,
+    COALESCE(b.amount, 0) AS amount
+  FROM public.bookings b
+)
+SELECT
+  COUNT(*)                                                           AS ""TotalBookings"",
+  COALESCE(SUM(CASE WHEN status = 'completed' THEN amount ELSE 0 END), 0)::numeric(12,2) AS ""Revenue"",
+  COUNT(*) FILTER (WHERE status = 'completed')                       AS ""Completed"",
+  COUNT(*) FILTER (WHERE status IN ('declined','cancelled'))         AS ""Cancelled"",
+  COUNT(*) FILTER (WHERE status = 'pending' AND DATE(created_at) = CURRENT_DATE)         AS ""PendingToday"",
+  COALESCE(SUM(CASE WHEN status = 'completed' AND DATE(created_at)=CURRENT_DATE
+           THEN amount ELSE 0 END), 0)::numeric(12,2)                AS ""RevenueToday"",
+  CASE WHEN COUNT(*) FILTER (WHERE status = 'completed') = 0 THEN 0
+       ELSE ROUND((
+         SUM(CASE WHEN status='completed' THEN amount ELSE 0 END)
+         / NULLIF(COUNT(*) FILTER (WHERE status='completed'), 0)
+       )::numeric, 2)
+  END                                                                AS ""Aov""
+FROM base;
+";
+            var row = await _context.DbConnection.QueryAsync<overview>(sql);
+            return row.AsList();
+        }
+
+        public async Task<IReadOnlyList<StatusBreakdownDTO>> StatusBreakdown()
+        {
+            const string sql = @"
+SELECT
+  COUNT(*) FILTER (WHERE lower(status) = 'pending')                       AS ""Pending"",
+  COUNT(*) FILTER (WHERE lower(status) IN ('assigned','confirmed'))       AS ""Confirmed"",
+  COUNT(*) FILTER (WHERE lower(status) = 'completed')                     AS ""Completed"",
+  COUNT(*) FILTER (WHERE lower(status) IN ('declined','cancelled'))       AS ""Cancelled""
+FROM public.bookings;";
+
+            var rows = await _context.DbConnection.QueryAsync<StatusBreakdownDTO>(sql);
+            return rows.AsList(); // single row
+        }
+
+        public async Task<IReadOnlyList<RecentBookingItemDTO>> RecentBooking()
+        {
+            const string sql = @"
+SELECT
+  b.booking_id                                           AS ""Id"",
+  COALESCE(c.full_name, c.email, 'Customer')             AS ""CustomerName"",
+  'Cleaning'                                             AS ""Category"",
+  COALESCE(b.amount, SUM(d.price * d.quantity), 0)::numeric(12,2) AS ""Price"",
+  b.status                                               AS ""Status"",
+  b.created_at                                           AS ""CreatedAt""
+FROM public.bookings b
+LEFT JOIN public.booking_details d ON d.booking_id = b.booking_id
+LEFT JOIN public.users c       ON c.user_id   = b.customer_id     -- adjust if your table is named differently
+GROUP BY b.booking_id, c.full_name, c.email, b.status, b.created_at, b.amount
+ORDER BY b.created_at DESC
+LIMIT 8;";
+
+            var rows = await _context.DbConnection.QueryAsync<RecentBookingItemDTO>(sql);
+            return rows.AsList();
         }
     }
     

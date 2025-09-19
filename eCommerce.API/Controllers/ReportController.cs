@@ -1,4 +1,5 @@
 ﻿using eCommerce.Core.DTO.Report;
+using eCommerce.Core.Entities;
 using eCommerce.Core.Service;
 using eCommerce.Core.ServiceContracts;
 using Microsoft.AspNetCore.Http;
@@ -103,6 +104,32 @@ namespace eCommerce.API.Controllers
         {
             var result = await _reportingService.GetServicePopularity();
             return Ok(result);  
+        }
+
+        [HttpGet("overview")]
+        [ProducesResponseType(typeof(overview), StatusCodes.Status200OK)]
+        public async Task<IActionResult> Overview()
+        {
+            var row = await _reportingService.overviews();
+            return Ok(row);
+        }
+
+        // GET: /api/Dashboard/status?from=...&to=...
+        [HttpGet("status")]
+        [ProducesResponseType(typeof(StatusBreakdownDTO), StatusCodes.Status200OK)]
+        public async Task<IActionResult> Status([FromQuery] DateTime? from = null, [FromQuery] DateTime? to = null)
+        {
+            var row = await _reportingService.StatusBreakdown();
+            return Ok(row);
+        }
+
+        // GET: /api/Dashboard/recent?take=8
+        [HttpGet("recent")]
+        [ProducesResponseType(typeof(IEnumerable<RecentBookingItemDTO>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> Recent([FromQuery] int take = 8)
+        {
+            var items = await _reportingService.RecentBooking();
+            return Ok(items);
         }
 
     }

@@ -1,4 +1,5 @@
 ﻿using eCommerce.Core.DTO.Booking;
+using eCommerce.Core.DTO.Report;
 using eCommerce.Core.ServiceContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -202,7 +203,7 @@ namespace eCommerce.API.Controllers
             var items = await _service.ListForCleanerAsync( status, from, to);
             return Ok(items);
         }
-        
+  
 
     }
 }

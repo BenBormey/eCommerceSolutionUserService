@@ -58,15 +58,13 @@ namespace eCommerce.API.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            if (dto.PaymentId == Guid.Empty) dto.PaymentId = id;
-            else if (dto.PaymentId != id) return BadRequest("Route id and body PaymentId mismatch.");
-
+            // ✅ Do NOT read dto.PaymentId (DTO doesn’t have it). Use route id instead.
             var updated = await _service.UpdateAsync(id, dto);
             if (updated is null) return NotFound($"Payment {id} not found.");
             return Ok(updated);
         }
 
-        // PATCH: api/Payment/{id}/paid?paidAt=2025-09-07T09:00:00Z&transactionId=TX123
+        // PATCH: api/Payment/{id}/paid?paidAt=...&transactionId=...
         [HttpPatch("{id:guid}/paid")]
         [ProducesResponseType(typeof(PaymentDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -75,7 +73,6 @@ namespace eCommerce.API.Controllers
             var ok = await _service.MarkPaidAsync(id, paidAt, transactionId);
             if (!ok) return NotFound($"Payment {id} not found.");
 
-            // return the fresh row
             var item = await _service.GetByIdAsync(id);
             return Ok(item);
         }

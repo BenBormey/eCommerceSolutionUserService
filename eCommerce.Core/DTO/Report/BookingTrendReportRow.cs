@@ -10,5 +10,7 @@ namespace eCommerce.Core.DTO.Report
     {
         public DateTime BookingDate { get; set; }
         public int TotalBookings { get; set; }
+        public int CompletedBookings { get; set; }
+        public decimal Revenue { get; set; }
     }
 }

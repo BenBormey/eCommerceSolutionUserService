@@ -47,7 +47,7 @@ namespace eCommerce.Core.Service
         }
         public async Task<bool> CompleteAsync(Guid bookingId, Guid cleanerId)
         {
-            var affected = await _repo.ChangeStatus(bookingId, "Confirmed", cleanerId);
+            var affected = await _repo.ChangeStatus(bookingId, "Completed", cleanerId);
 
             // affected = 1 ⇒ success, else fail
             return affected;

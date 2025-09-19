@@ -58,5 +58,15 @@ namespace eCommerce.Core.Service
 
         public Task<IReadOnlyList<ServicePopularityDTO>> GetServicePopularity()
             => _reportRepository.GetServicePopularity();
+
+        public Task<IReadOnlyList<overview>> overviews()
+        => _reportRepository.overviews();
+
+        public Task<IReadOnlyList<StatusBreakdownDTO>> StatusBreakdown()
+        => _reportRepository.StatusBreakdown();
+          
+
+        public Task<IReadOnlyList<RecentBookingItemDTO>> RecentBooking()
+       => _reportRepository.RecentBooking();
     }
 }

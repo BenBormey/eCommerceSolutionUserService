@@ -1,4 +1,5 @@
-﻿using eCommerce.Core.DTO.Review;
+﻿using eCommerce.Core.DTO.Report;
+using eCommerce.Core.DTO.Review;
 using eCommerce.Core.ServiceContracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -103,6 +104,8 @@ namespace eCommerce.API.Controllers
             if (!ok) return NotFound($"Review {id} not found.");
             return NoContent();
         }
+      
+
     }
 }
 
