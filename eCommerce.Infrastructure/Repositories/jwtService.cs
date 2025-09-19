@@ -1,10 +1,11 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using eCommerce.Core.Options;
 using eCommerce.Core.RepositoryContracts;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Numerics;
+using System.Security.Claims;
+using System.Text;
 
 namespace eCommerce.Core.Service
 {
@@ -21,56 +22,38 @@ namespace eCommerce.Core.Service
 
             _validationParams = new TokenValidationParameters
             {
+                // Signature / issuer / audience
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(_keyBytes),
                 ValidateIssuer = !string.IsNullOrWhiteSpace(_opts.Issuer),
                 ValidateAudience = !string.IsNullOrWhiteSpace(_opts.Audience),
                 ValidIssuer = _opts.Issuer,
                 ValidAudience = _opts.Audience,
-                ClockSkew = TimeSpan.FromSeconds(5)
+
+                // Lifetime
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.FromSeconds(30),
+
+                // Map which claim types represent name/role in resulting principal
+                NameClaimType = ClaimTypes.Name,
+                RoleClaimType = ClaimTypes.Role
             };
         }
+
 
         public string GenerateToken(Guid userId, string username, string roles)
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
-                new Claim(JwtRegisteredClaimNames.UniqueName, username ?? string.Empty),
-                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
-                new Claim(ClaimTypes.Name, username ?? string.Empty)
-            };
-
-            if (roles != null)
-            {
-              
-                    if (!string.IsNullOrWhiteSpace(roles))
-                    {
-                        claims.Add(new Claim(ClaimTypes.Role, roles));
-                    }
-                
-            }
-
-            var creds = new SigningCredentials(new SymmetricSecurityKey(_keyBytes), SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: string.IsNullOrWhiteSpace(_opts.Issuer) ? null : _opts.Issuer,
-                audience: string.IsNullOrWhiteSpace(_opts.Audience) ? null : _opts.Audience,
-                claims: claims,
-                notBefore: DateTime.UtcNow,
-                expires: DateTime.UtcNow.AddMinutes(_opts.AccessTokenMinutes > 0 ? _opts.AccessTokenMinutes : 60),
-                signingCredentials: creds);
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+            => GenerateTokenCore(userId, username, email: null, ParseRolesCsv(roles));
 
         public ClaimsPrincipal? ValidateToken(string token)
         {
             if (string.IsNullOrWhiteSpace(token)) return null;
+
             var handler = new JwtSecurityTokenHandler();
             try
             {
                 var principal = handler.ValidateToken(token, _validationParams, out var validatedToken);
+
+                // ensure alg is HS256 (same as we sign with)
                 if (validatedToken is JwtSecurityToken jwt &&
                     jwt.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.OrdinalIgnoreCase))
                 {
@@ -96,5 +79,63 @@ namespace eCommerce.Core.Service
 
             return Guid.TryParse(id, out var guid) ? guid : null;
         }
+
+        // ------------------------------------------------------------
+        // INTERNALS
+        // ------------------------------------------------------------
+        private string GenerateTokenCore(Guid userId, string username, string? email, IEnumerable<string>? roles)
+        {
+            var now = DateTime.UtcNow;
+            var expires = now.AddMinutes(_opts.AccessTokenMinutes > 0 ? _opts.AccessTokenMinutes : 60);
+
+            var claims = new List<Claim>
+            {
+                new(JwtRegisteredClaimNames.Sub, userId.ToString()),       // subject = user id
+                new(ClaimTypes.NameIdentifier, userId.ToString()),         // ASP.NET friendly
+                new(JwtRegisteredClaimNames.UniqueName, username ?? string.Empty),
+                new(ClaimTypes.Name, username ?? string.Empty),
+             //   new(ClaimTypes.phon, phone ?? string.Empty),
+
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new(JwtRegisteredClaimNames.Iat, ToUnixTime(now), ClaimValueTypes.Integer64)
+            };
+
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                claims.Add(new(JwtRegisteredClaimNames.Email, email));
+                claims.Add(new(ClaimTypes.Email, email));
+            }
+
+            if (roles != null)
+            {
+                foreach (var r in roles)
+                {
+                    var role = (r ?? string.Empty).Trim();
+                    if (!string.IsNullOrWhiteSpace(role))
+                        claims.Add(new Claim(ClaimTypes.Role, role));
+                }
+            }
+
+            var creds = new SigningCredentials(new SymmetricSecurityKey(_keyBytes), SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: string.IsNullOrWhiteSpace(_opts.Issuer) ? null : _opts.Issuer,
+                audience: string.IsNullOrWhiteSpace(_opts.Audience) ? null : _opts.Audience,
+                claims: claims,
+                notBefore: now,
+                expires: expires,
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private static IEnumerable<string> ParseRolesCsv(string? csv)
+            => string.IsNullOrWhiteSpace(csv)
+                ? Array.Empty<string>()
+                : csv.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        private static string ToUnixTime(DateTime utc)
+            => ((long)(utc - DateTime.UnixEpoch).TotalSeconds).ToString();
     }
 }

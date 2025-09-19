@@ -55,10 +55,10 @@ RETURNING
     {
         const string sql = @"
 SELECT 
-    user_id       AS "" "",
+    user_id       AS ""UserId"",
     full_name     AS ""FullName"",
     email,
-    phone,
+    phone as Phone,
     password_hash AS ""PasswordHash"",
     role,
     profile_image AS ""ProfileImage"",

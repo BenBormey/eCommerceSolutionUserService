@@ -18,8 +18,11 @@ namespace eCommerce.Core.ServiceContracts
         Task<bool> DeleteAsync(Guid bookingId);
 
         // Status transitions
-        Task<bool> ConfirmAsync(Guid bookingId);
-        Task<bool> CompleteAsync(Guid bookingId);
-        Task<bool> CancelAsync(Guid bookingId);
+        Task<bool> ConfirmAsync(Guid bookingId, Guid cleanerId);
+        Task<bool> CompleteAsync(Guid bookingId, Guid cleanerId);
+        Task<bool> CancelAsync(Guid bookingId, Guid cleanerId);
+        Task<IEnumerable<BookingDTO>> ListForCleanerAsync( string status, DateTime? from, DateTime? to);
+        Task<int> CountBooking();
+
     }
 }

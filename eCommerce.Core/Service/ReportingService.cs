@@ -55,5 +55,8 @@ namespace eCommerce.Core.Service
 
         public Task<IReadOnlyList<LocationReportRow>> GetLocationReportAsync()
             => _reportRepository.GetLocationReportAsync();
+
+        public Task<IReadOnlyList<ServicePopularityDTO>> GetServicePopularity()
+            => _reportRepository.GetServicePopularity();
     }
 }

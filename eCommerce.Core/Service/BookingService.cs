@@ -37,8 +37,44 @@ namespace eCommerce.Core.Service
 
         public Task<bool> DeleteAsync(Guid bookingId) => _repo.Delete(bookingId);
 
-        public Task<bool> ConfirmAsync(Guid bookingId) => _repo.ChangeStatus(bookingId, "Confirmed");
-        public Task<bool> CompleteAsync(Guid bookingId) => _repo.ChangeStatus(bookingId, "Completed");
-        public Task<bool> CancelAsync(Guid bookingId) => _repo.ChangeStatus(bookingId, "Cancelled");
+        public async Task<bool> ConfirmAsync(Guid bookingId, Guid cleanerId)
+        {
+
+            var affected = await _repo.ChangeStatus(bookingId, "Confirmed", cleanerId);
+
+            // affected = 1 ⇒ success, else fail
+            return affected;
+        }
+        public async Task<bool> CompleteAsync(Guid bookingId, Guid cleanerId)
+        {
+            var affected = await _repo.ChangeStatus(bookingId, "Confirmed", cleanerId);
+
+            // affected = 1 ⇒ success, else fail
+            return affected;
+        }
+
+
+      
+            
+      
+        public async Task<bool> CancelAsync(Guid bookingId, Guid cleanerId)
+
+        {
+
+            var affected = await _repo.ChangeStatus(bookingId, "Confirmed", cleanerId);
+
+            // affected = 1 ⇒ success, else fail
+            return affected;
+        }
+        public async Task<IEnumerable<BookingDTO>> ListForCleanerAsync(string status, DateTime? from, DateTime? to)
+        {
+            var rows = await _repo.ListForCleanerAsync(status, from, to);
+            return (IEnumerable<BookingDTO>)rows;
+        }
+
+        public async Task<int> CountBooking()
+        {
+            return await _repo.CountBooking();
+        }
     }
 }
