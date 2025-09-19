@@ -12,14 +12,15 @@ public class ApplicationUser
 
     [MaxLength(150)] public string? FullName { get; set; }
     [MaxLength(150)] public string? Email { get; set; }
-    [MaxLength(30)] public string? Phone { get; set; }
+    [MaxLength(50)] public string? Phone { get; set; }
     public string PasswordHash { get; set; } = null!;
 
     [MaxLength(500)] public string? ProfileImage { get; set; }
     public bool IsActive { get; set; } = true;
     [MaxLength(30)] public string? Status { get; set; }   // optional free-text status
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public string Role { get; set; } = "Customer"; 
+    public string Role { get; set; } = "Customer";
+
 
     // Navigations
     public ICollection<Booking> CustomerBookings { get; set; } = new List<Booking>();

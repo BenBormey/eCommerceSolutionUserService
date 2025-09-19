@@ -12,10 +12,11 @@ public record AuthenticationResponse(
     string? Fullname,
     string? Token,
     bool Success,
+    string phone   ,
     string? Role = null
 )
 {
-    public AuthenticationResponse() : this(default,default,default,default,default,default)
+    public AuthenticationResponse() : this(default,default,default,default,default,default,default)
     {
         
     }

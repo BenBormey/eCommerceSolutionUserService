@@ -10,14 +10,18 @@ namespace eCommerce.Core.DTO.Booking
     {
         public Guid BookingId { get; set; }
         public Guid CustomerId { get; set; }
-        public Guid CleanerId { get; set; }
-        public int ServiceId { get; set; }
+        public Guid? CleanerId { get; set; }
+
         public DateTime BookingDate { get; set; }
-        public TimeSpan TimeSlot { get; set; }              // DB: time without time zone
+        public TimeSpan TimeSlot { get; set; }   // maps to PostgreSQL "time"
+
         public int? LocationId { get; set; }
         public string? AddressDetail { get; set; }
         public string Status { get; set; } = "Pending";
         public string? Notes { get; set; }
         public DateTime CreatedAt { get; set; }
+
+        // 👉 List of details (instead of single ServiceId)
+        public List<BookingDetailDTO> Details { get; set; } = new();
     }
 }

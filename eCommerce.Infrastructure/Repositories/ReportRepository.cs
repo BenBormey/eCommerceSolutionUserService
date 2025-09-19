@@ -174,6 +174,24 @@ FROM public.get_customer_report_v2(
                 var rows = await _context.DbConnection.QueryAsync<LocationReportRow>(sql);
                 return rows.AsList();
             }
+
+        public async Task<IReadOnlyList<ServicePopularityDTO>> GetServicePopularity()
+        {
+            const string sql = @"SELECT 
+    s.service_id AS ServiceId ,
+    s.name AS  ServiceName,
+    COUNT(d.booking_detail_id) AS TotalBookings,
+    SUM(d.quantity) AS TotalQuantity,
+    SUM(d.price * d.quantity)::numeric(12,2) AS TotalRevenue
+FROM public.booking_details d
+JOIN public.services s ON s.service_id = d.service_id
+GROUP BY s.service_id, s.name
+ORDER BY TotalBookings DESC, TotalRevenue DESC";
+
+
+            var row = await _context.DbConnection.QueryAsync<ServicePopularityDTO>(sql);
+            return row.AsList();
+        }
     }
     
 }

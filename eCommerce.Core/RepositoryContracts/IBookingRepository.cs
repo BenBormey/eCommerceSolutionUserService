@@ -1,4 +1,5 @@
 ﻿using eCommerce.Core.DTO.Booking;
+using eCommerce.Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,13 @@ namespace eCommerce.Core.RepositoryContracts
 {
     public interface IBookingRepository
     {
+        Task<IEnumerable<BookingDTO>> ListForCleanerAsync(
+         
+            string status,
+            DateTime? from,
+            DateTime? to
+        );
+        Task<int> CountBooking();
         Task<BookingDTO?> GetById(Guid bookingId);
         Task<IEnumerable<BookingDTO>> GetByCustomer(Guid customerId, DateTime? from, DateTime? to);
         Task<IEnumerable<BookingDTO>> GetByCleaner(Guid cleanerId, DateTime? from, DateTime? to);
@@ -17,7 +25,9 @@ namespace eCommerce.Core.RepositoryContracts
         Task<BookingDTO?> Update(Guid bookingId, BookingUpdateDTO dto);
         Task<bool> Delete(Guid bookingId);
 
-        Task<bool> ChangeStatus(Guid bookingId, string status);
+        Task<bool> ChangeStatus(Guid bookingId, string status, Guid cleanerId);
+
         Task<bool> ExistsAsync(Guid bookingId);
+      
     }
 }
