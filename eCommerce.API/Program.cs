@@ -78,6 +78,11 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()
     );
 });
+//builder.Services.AddCors(o => o.AddPolicy("web", p => {
+//    p.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod();
+//}));
+
+
 
 // JWT Options binding
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
@@ -121,7 +126,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+//app.UseCors("web");
 // Global exception handler (your custom middleware)
 app.UseExceptionHandlingMiddleware();
 

@@ -18,7 +18,8 @@ namespace eCommerce.Core.Entities
         [MaxLength(500)] public string? ImageUrl { get; set; }
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
+        public Guid? CategoryId { get; set; }
+        public Category? Category { get; set; }
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
     }
 }

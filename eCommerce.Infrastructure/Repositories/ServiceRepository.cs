@@ -22,11 +22,11 @@ namespace eCommerce.Infrastructure.Repositories
         {
             var query = @"
         INSERT INTO public.services 
-            (name, description, price, duration_minutes, image_url, is_active, created_at)
+            (name, description, price, duration_minutes, image_url, is_active, created_at,category_id)
         VALUES 
-            (@Name, @Description, @Price, @DurationMinutes, @ImageUrl, @IsActive, NOW())
+            (@Name, @Description, @Price, @DurationMinutes, @ImageUrl, @IsActive, NOW(),@CategoryId)
         RETURNING 
-            service_id, name, description, price, duration_minutes, image_url, is_active, created_at;
+            service_id, name, description, price, duration_minutes, image_url, is_active, created_at,category_id;
     ";
 
             var result = await _context.DbConnection.QuerySingleAsync<ServiceDTO>(query, cre);
@@ -51,7 +51,8 @@ namespace eCommerce.Infrastructure.Repositories
     s.duration_minutes as DurationMinutes,
     s.image_url as ImageUrl,
     s.is_active as IsActive,
-    s.created_at
+    s.created_at,
+    s.category_id  as  CategoryId
 FROM public.services AS s
 ORDER BY s.created_at DESC;
 ";
@@ -70,7 +71,8 @@ ORDER BY s.created_at DESC;
             s.duration_minutes,
             s.image_url,
             s.is_active,
-            s.created_at
+            s.created_at,
+ s.category_id  as  CategoryId
         FROM public.services AS s
         WHERE s.service_id = @ServiceId;
     ";
@@ -101,7 +103,8 @@ ORDER BY s.created_at DESC;
             price = @Price,
             duration_minutes = @DurationMinutes,
             image_url = @ImageUrl,
-            is_active = @IsActive
+            is_active = @IsActive,
+category_id  = @CategoryId
         WHERE service_id = @ServiceId
         RETURNING 
             service_id, name, description, price, duration_minutes, image_url, is_active, created_at;
