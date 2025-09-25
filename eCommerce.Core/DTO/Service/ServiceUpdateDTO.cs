@@ -22,6 +22,7 @@ namespace eCommerce.Core.DTO.Service
         [Range(0, 999999.99)]
         public decimal Price { get; set; }
 
+        public Guid CategoryId { get; set; }
         public int DurationMinutes { get; set; }
 
         public string? ImageUrl { get; set; }

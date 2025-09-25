@@ -18,9 +18,11 @@ namespace eCommerce.API.Controllers
 
         // GET: api/dashboard/overview?from=2025-09-01&to=2025-09-18
         [HttpGet("overview")]
-        public async Task<IActionResult> GetOverview([FromQuery] DateTime from, [FromQuery] DateTime to)
+        public async Task<IActionResult> GetOverview([FromQuery] DateTime? from, [FromQuery] DateTime? to)
         {
-            var result = await _dashboardService.GetOverviewAsync(from, to);
+            var end = to ?? DateTime.UtcNow;              // default = now
+            var start = from ?? end.AddDays(-30);
+            var result = await _dashboardService.GetOverviewAsync(start, end);
             return Ok(result);
         }
 
