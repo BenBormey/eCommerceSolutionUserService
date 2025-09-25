@@ -1,4 +1,5 @@
 ﻿using eCommerce.Core.DTO.Service;
+using eCommerce.Core.Entities;
 using eCommerce.Core.ServiceContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -86,6 +87,20 @@ namespace eCommerce.API.Controllers
                 return NotFound($"Service with ID {id} not found.");
 
             return Ok(new { ServiceId = id, IsActive = isActive });
+        }
+
+        [HttpGet("getbyCategory")]
+        public async Task<IActionResult> GetbyCategory(Guid categoryid)
+        {
+            var category = await _serviceService.GetByCategory(categoryid);
+            return Ok(category);
+
+        }
+        [HttpGet("getTopservice")]
+        public async Task<IActionResult> Getservicetofour()
+        {
+            var result = await _serviceService.GetTopservicefour();
+                return Ok(result);
         }
     }
 }

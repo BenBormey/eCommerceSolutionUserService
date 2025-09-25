@@ -85,5 +85,36 @@ namespace eCommerce.Infrastructure.Repositories
             ";
             return await _db.DbConnection.QueryAsync<BookingRecentDto>(sql, new { Take = take });
         }
+
+        public async Task<IEnumerable<TodayScheduleRowDto>> GetSceduleRowDto()
+        {
+            var sql = @"SELECT
+  b.booking_id                                            AS ""bookingId"",
+  b.booking_date::date                                    AS ""date"",
+  to_char(COALESCE(b.time_slot, (b.booking_date::timestamp)::time), 'HH24:MI')
+                                                          AS ""time"",
+  cu.full_name                                            AS ""customer"",
+  b.status                                                AS ""status"",
+  COALESCE(cl.full_name, '—')                             AS ""cleaner"",
+  string_agg(DISTINCT s.name, ', ' ORDER BY s.name)       AS ""services"",
+  ROUND(SUM(bd.quantity * bd.price)::numeric, 2)          AS ""total""
+FROM bookings b
+JOIN users cu                 ON cu.user_id = b.customer_id
+LEFT JOIN users cl            ON cl.user_id = b.cleaner_id
+LEFT JOIN booking_details bd  ON bd.booking_id = b.booking_id
+LEFT JOIN services s          ON s.service_id  = bd.service_id
+WHERE b.booking_date::date = CURRENT_DATE
+  AND b.status IN ('Pending','Confirmed','In-Progress')
+GROUP BY
+  b.booking_id,
+  b.booking_date::date,
+  COALESCE(b.time_slot, (b.booking_date::timestamp)::time),
+  cu.full_name,
+  b.status,
+  cl.full_name
+ORDER BY ""time"";
+";
+            return await _db.DbConnection.QueryAsync<TodayScheduleRowDto>(sql);
+        }
     }
 }

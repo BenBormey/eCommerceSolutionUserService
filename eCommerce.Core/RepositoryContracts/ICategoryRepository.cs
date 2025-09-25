@@ -22,5 +22,7 @@ namespace eCommerce.Core.RepositoryContracts
 
      
         Task<bool> DeleteCategoryAsync(Guid categoryId);
+
+
     }
 }

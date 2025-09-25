@@ -1,4 +1,5 @@
-﻿using eCommerce.Core.DTO.Service;
+﻿using eCommerce.Core.DTO.Category;
+using eCommerce.Core.DTO.Service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +25,10 @@ namespace eCommerce.Core.ServiceContracts
         // Optional quality-of-life
         Task<bool> ExistsAsync(int serviceId);
         Task<bool> ToggleActiveAsync(int serviceId, bool isActive);
+        Task<IEnumerable<ServiceDTO>> GetByCategory(Guid? categoryId);
+        Task<IEnumerable<topservice>> GetTopservicefour();
 
-      
+
+
     }
 }

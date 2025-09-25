@@ -1,4 +1,5 @@
-﻿using eCommerce.Core.DTO.Service;
+﻿using eCommerce.Core.DTO.Category;
+using eCommerce.Core.DTO.Service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +25,10 @@ namespace eCommerce.Core.RepositoryContracts
             // Delete service
             Task<bool> Delete(int serviceId);
         Task<bool> ToggleActiveAsync(int serviceId, bool isActive);
+        Task<IEnumerable<ServiceDTO>> GetByCategory(Guid? categoryId);
+        Task<IEnumerable<topservice>> GetTopservicefour();
+
+
 
 
 

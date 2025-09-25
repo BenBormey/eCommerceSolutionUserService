@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using eCommerce.Core.DTO.Dashboard;
 using eCommerce.Core.ServiceContracts;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 
@@ -46,6 +47,13 @@ namespace eCommerce.API.Controllers
         {
             var result = await _dashboardService.GetRecentBookingsAsync(take);
             return Ok(result);
+        }
+        [HttpGet("today-schedule")]
+        public async Task<ActionResult<IEnumerable<TodayScheduleRowDto>>> GetTodaySchedule()
+        {
+            
+            var rows = await _dashboardService.GetSceduleRowDto();
+            return Ok(rows);   // [] if none
         }
     }
 }

@@ -19,5 +19,7 @@ namespace eCommerce.Core.RepositoryContracts
 
      
         Task<IEnumerable<BookingRecentDto>> GetRecentBookingsAsync(int take = 8);
+        Task<IEnumerable<TodayScheduleRowDto>> GetSceduleRowDto();
+
     }
 }

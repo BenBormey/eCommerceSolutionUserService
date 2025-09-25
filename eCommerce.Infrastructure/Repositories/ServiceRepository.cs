@@ -1,8 +1,10 @@
 ﻿using Dapper;
+using eCommerce.Core.DTO.Category;
 using eCommerce.Core.DTO.Service;
 using eCommerce.Core.RepositoryContracts;
 using eCommerce.Infrastructure.DbContext;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -39,6 +41,24 @@ namespace eCommerce.Infrastructure.Repositories
 
             var affectedRows = await _context.DbConnection.ExecuteAsync(query, new { ServiceId = serviceId });
             return affectedRows > 0;
+        }
+
+        public async  Task<IEnumerable<ServiceDTO>> GetByCategory(Guid? categoryId)
+        {
+            var query = $@"SELECT 
+    s.service_id as ServiceId ,
+    s.name,
+    s.description,
+    s.price,
+    s.duration_minutes as DurationMinutes,
+    s.image_url as ImageUrl,
+    s.is_active as IsActive,
+    s.created_at,
+    s.category_id  as  CategoryId
+FROM public.services AS s where s.category_id ='{categoryId}'
+ORDER BY s.created_at DESC";
+            var result = await _context.DbConnection.QueryAsync<ServiceDTO>(query);
+            return result;
         }
 
         public async Task<IEnumerable<ServiceDTO>> GetService()
@@ -83,6 +103,37 @@ ORDER BY s.created_at DESC;
             return result;
         }
 
+        public async Task<IEnumerable<topservice>> GetTopservicefour()
+        {
+            var sql = @"
+
+SELECT
+  s.service_id                              AS ServiceId,
+  s.name                                    AS Name,
+  COUNT(DISTINCT b.booking_id)              AS BookingCount,     
+  COALESCE(SUM(bd.quantity), 0)             AS TotalQuantity,    
+  COALESCE(SUM(bd.quantity * bd.price), 0)  AS revenue           
+FROM bookings b
+JOIN booking_details bd ON bd.booking_id = b.booking_id
+JOIN services s         ON s.service_id  = bd.service_id
+GROUP BY s.service_id, s.name
+ORDER BY Revenue DESC, s.service_id
+LIMIT 4;
+
+
+
+
+
+
+
+
+";
+
+            var result = await _context.DbConnection.QueryAsync<topservice>(sql);
+            return result;
+
+        }
+
         public async Task<bool> ToggleActiveAsync(int serviceId, bool isActive)
         {
             const string sql = @"
@@ -125,5 +176,6 @@ category_id  = @CategoryId
 
             return result;
         }
+
     }
 }

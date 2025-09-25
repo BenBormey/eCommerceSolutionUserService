@@ -37,5 +37,10 @@ namespace eCommerce.Core.Service
         {
             return _repository.GetRecentBookingsAsync(take);
         }
+
+        public Task<IEnumerable<TodayScheduleRowDto>> GetSceduleRowDto()
+        {
+            return _repository.GetSceduleRowDto();
+        }
     }
 }

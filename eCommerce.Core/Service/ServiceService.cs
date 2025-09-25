@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using eCommerce.Core.DTO.Category;
 using eCommerce.Core.DTO.Service;
 using eCommerce.Core.Entities;
 using eCommerce.Core.RepositoryContracts;
@@ -61,5 +62,19 @@ namespace eCommerce.Core.Service
             return await _serviceRepository.ToggleActiveAsync(serviceId, isActive);
         }
 
+        public async Task<IEnumerable<ServiceDTO>> GetByCategory(Guid? categoryId)
+        {
+           if(categoryId == null)
+            {
+                return null;
+            }
+           return await _serviceRepository.GetByCategory(categoryId);
+        }
+
+        public async Task<IEnumerable<topservice>> GetTopservicefour()
+        {
+             var result  = await _serviceRepository.GetTopservicefour();
+            return result;
+        }
     }
 }
