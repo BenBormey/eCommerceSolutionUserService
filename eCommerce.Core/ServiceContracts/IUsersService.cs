@@ -17,6 +17,6 @@ public interface IUsersService
  Task<AuthenticationResponse?> Register(RegisterRequest registerRequest);
     Task<IEnumerable<CustomerDTO>> GetAllCustomer();
     Task<CustomerDTO?> GetCustomerById(Guid userId);
-    Task<bool> UpdateCustomer(CustomerDTO customer);
+    Task<bool> UpdateCustomer(Guid customerid, EditCustomer customer);
     Task<bool> DeleteCustomer(Guid userId);
 }

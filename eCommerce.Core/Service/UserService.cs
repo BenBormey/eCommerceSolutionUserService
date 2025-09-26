@@ -88,9 +88,9 @@ public class UserService : IUsersService
     //    return new AuthenticationResponse(registeredUser.UserId,registeredUser.Email,registeredUser.PersonName,registeredUser.Gender, "token",true);
     }
 
-    public async Task<bool> UpdateCustomer(CustomerDTO customer)
+    public async Task<bool> UpdateCustomer(Guid custId, EditCustomer customer)
     {
-       await _usersRepository.UpdateCustomer(customer);
+       await _usersRepository.UpdateCustomer(custId,customer);
         return true;
     }
 }

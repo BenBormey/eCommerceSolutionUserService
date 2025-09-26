@@ -42,13 +42,13 @@ namespace eCommerce.API.Controllers
             return Ok(new { message = "Customer deleted successfully" });
         }
         [HttpPut("UpdateCustomer")]
-        public async Task<IActionResult> UpdateCustomer([FromBody] eCommerce.Core.DTO.Customer.CustomerDTO customer)
+        public async Task<IActionResult> UpdateCustomer(Guid custId, [FromBody] eCommerce.Core.DTO.Customer.EditCustomer customer)
         {
-            if (customer == null || customer.UserId == Guid.Empty)
+            if (customer == null || custId == Guid.Empty)
             {
                 return BadRequest("Invalid customer data");
             }
-            var result = await usersService.UpdateCustomer(customer);
+            var result = await usersService.UpdateCustomer( custId, customer);
             if (!result)
             {
                 return NotFound();

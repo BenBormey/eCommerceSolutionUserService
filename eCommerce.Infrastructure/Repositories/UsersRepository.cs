@@ -145,7 +145,7 @@ order by full_name;";
         return result;
     }
 
-    public async Task<bool> UpdateCustomer(CustomerDTO customer)
+    public async Task<bool> UpdateCustomer(Guid custId,EditCustomer customer)
     {
        var sql = $@"update  public.users set 
 	full_name = '{customer.FullName}',
@@ -153,8 +153,8 @@ order by full_name;";
 	phone = '{customer.Phone}',
 	role = '{customer.Role}',
 	profile_image = '{customer.ProfileImage}',
-	status = '{customer.Status}' 
-	where userid = '{customer.UserId}'
+
+	where userid = '{custId}'
 ;";
         var rows = await _context.DbConnection.ExecuteAsync(sql);
         return rows > 0;

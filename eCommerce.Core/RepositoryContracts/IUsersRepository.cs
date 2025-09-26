@@ -23,7 +23,7 @@ namespace eCommerce.Core.RepositoryContracts
         Task<ApplicationUser?> GetUserByEmailAndPassword(string? email, string? password);
         Task<IEnumerable<CustomerDTO>> GetAllCustomer();
         Task<CustomerDTO?> GetCustomerById(Guid userId);
-        Task<bool> UpdateCustomer(CustomerDTO customer);    
+        Task<bool> UpdateCustomer(Guid custId, EditCustomer customer);    
         Task<bool> DeleteCustomer(Guid userId);
        
 
