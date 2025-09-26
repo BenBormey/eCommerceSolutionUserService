@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BCrypt.Net;
 using eCommerce.Core.DTO;
+using eCommerce.Core.DTO.Customer;
 using eCommerce.Core.Entities;
 using eCommerce.Core.RepositoryContracts;
 using eCommerce.Core.ServiceContracts;
@@ -19,6 +20,25 @@ public class UserService : IUsersService
         this._mapper = mapper;
         _jwt = jwt;
     }
+
+    public async Task<bool> DeleteCustomer(Guid userId)
+    {
+        await _usersRepository.DeleteCustomer(userId);
+        return true;
+    }
+
+    public async Task<IEnumerable<CustomerDTO>> GetAllCustomer()
+    {
+        var result  = await _usersRepository.GetAllCustomer();
+        return result;
+    }
+
+    public async Task<CustomerDTO?> GetCustomerById(Guid userId)
+    {
+        var rsult  = await _usersRepository.GetCustomerById(userId);
+        return rsult;
+    }
+
     public async Task<AuthenticationResponse?> Login(LoginRequest loginRequest)
     {
         ApplicationUser user =   await
@@ -66,5 +86,11 @@ public class UserService : IUsersService
             Token = "token"
         };
     //    return new AuthenticationResponse(registeredUser.UserId,registeredUser.Email,registeredUser.PersonName,registeredUser.Gender, "token",true);
+    }
+
+    public async Task<bool> UpdateCustomer(CustomerDTO customer)
+    {
+       await _usersRepository.UpdateCustomer(customer);
+        return true;
     }
 }

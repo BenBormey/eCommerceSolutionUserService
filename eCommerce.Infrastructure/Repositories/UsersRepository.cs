@@ -1,6 +1,7 @@
 ﻿using BCrypt.Net;
 using Dapper;
 using eCommerce.Core.DTO;
+using eCommerce.Core.DTO.Customer;
 using eCommerce.Core.Entities;
 using eCommerce.Core.RepositoryContracts;
 using eCommerce.Infrastructure.DbContext;
@@ -107,5 +108,65 @@ WHERE ur.""UserID"" = @UserId;";
 
         return await _context.DbConnection.QueryAsync<string>(sql, new { UserId = userId })
                ?? Enumerable.Empty<string>();
+    }
+
+    public async Task<IEnumerable<CustomerDTO>> GetAllCustomer()
+    {
+        var sql = @"
+select 
+user_id as UserId,
+full_name as FullName,
+email as Email,
+phone as Phone,
+role as Role,
+profile_image as ProfileImage,
+status as Status 
+
+from public.users where role = 'Customer'
+order by full_name;";
+        var result  = await _context.DbConnection.QueryAsync<CustomerDTO>(sql);
+        return result;
+    }
+
+    public Task<CustomerDTO?> GetCustomerById(Guid userId)
+    {
+        var sql = $@"select 
+user_id as UserId,
+full_name as FullName,
+email as Email,
+phone as Phone,
+role as Role,
+profile_image as ProfileImage,
+status as Status 
+
+from public.users where role = 'Customer' and user_id = '51ee687a-8553-4be0-97a3-7d32feded0a6'
+order by full_name;";
+        var result =  _context.DbConnection.QueryFirstOrDefaultAsync<CustomerDTO>(sql);
+        return result;
+    }
+
+    public async Task<bool> UpdateCustomer(CustomerDTO customer)
+    {
+       var sql = $@"update  public.users set 
+	full_name = '{customer.FullName}',
+	email = '{customer.Email}',
+	phone = '{customer.Phone}',
+	role = '{customer.Role}',
+	profile_image = '{customer.ProfileImage}',
+	status = '{customer.Status}' 
+	where userid = '{customer.UserId}'
+;";
+        var rows = await _context.DbConnection.ExecuteAsync(sql);
+        return rows > 0;
+
+    }
+
+    public async Task<bool> DeleteCustomer(Guid userId)
+    {
+        var sql = $@"
+delete from public.users where ""role"" = 'Customer' and user_id ='{userId}'
+";
+        var rows = await _context.DbConnection.ExecuteAsync(sql);
+        return rows > 0;
     }
 }

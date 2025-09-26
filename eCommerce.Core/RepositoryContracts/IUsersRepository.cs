@@ -1,4 +1,5 @@
 ﻿using eCommerce.Core.DTO;
+using eCommerce.Core.DTO.Customer;
 using eCommerce.Core.Entities;
 using System;
 using System.Collections.Generic;
@@ -20,5 +21,11 @@ namespace eCommerce.Core.RepositoryContracts
         Task<Guid?> GetRoleIdByNameAsync(string roleName);
         Task<bool> AddUserRoleAsync(Guid userId, Guid roleId);
         Task<ApplicationUser?> GetUserByEmailAndPassword(string? email, string? password);
+        Task<IEnumerable<CustomerDTO>> GetAllCustomer();
+        Task<CustomerDTO?> GetCustomerById(Guid userId);
+        Task<bool> UpdateCustomer(CustomerDTO customer);    
+        Task<bool> DeleteCustomer(Guid userId);
+       
+
     }
 }

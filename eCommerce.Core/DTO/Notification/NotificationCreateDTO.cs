@@ -15,8 +15,6 @@ namespace eCommerce.Core.DTO.Notification
         [Required]
         [MaxLength(500)]
         public string Message { get; set; } = null!;
-
-        // Optional: allow pre-setting read state (default false)
         public bool IsRead { get; set; } = false;
     }
 }

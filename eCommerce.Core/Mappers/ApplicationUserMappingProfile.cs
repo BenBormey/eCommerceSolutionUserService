@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using eCommerce.Core.DTO;
+using eCommerce.Core.DTO.Customer;
 using eCommerce.Core.Entities;
 
 namespace eCommerce.Core.Mappers;
@@ -10,6 +11,9 @@ public class ApplicationUserMappingProfile :Profile
     {
     
         CreateMap<ApplicationUser, UserSummaryDTO>();
+
+        CreateMap<ApplicationUser, CustomerDTO>();
+        CreateMap<ApplicationUser, CreateCustomerDTO>();
 
         CreateMap<ApplicationUser, AuthenticationResponse>()
             .ForMember(d => d.Fullname, m => m.MapFrom(s => s.FullName ?? ""))
