@@ -44,14 +44,14 @@ namespace eCommerce.API.Controllers
                 return Unauthorized(new { title = "Invalid email or password" });
 
             var roles = !string.IsNullOrWhiteSpace(auth.Role)
-        ? new[] { auth.Role }       // wrap single string as array
+        ? new[] { auth.Role }      
         : new[] { "Customer" };
 
 
-            // GenerateToken returns STRING
+    
             var token = _jwt.GenerateToken(auth.UserId, auth.Fullname, roles.ToString());
 
-            // If you want expiresAt but service doesn't return it, compute from config:
+          
             var expiresAt = DateTime.UtcNow.AddHours(1);
 
             return Ok(new

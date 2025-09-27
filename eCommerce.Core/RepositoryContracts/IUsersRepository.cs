@@ -21,10 +21,11 @@ namespace eCommerce.Core.RepositoryContracts
         Task<Guid?> GetRoleIdByNameAsync(string roleName);
         Task<bool> AddUserRoleAsync(Guid userId, Guid roleId);
         Task<ApplicationUser?> GetUserByEmailAndPassword(string? email, string? password);
-        Task<IEnumerable<CustomerDTO>> GetAllCustomer();
-        Task<CustomerDTO?> GetCustomerById(Guid userId);
+        Task<IEnumerable<CustomerDTO>> GetAllCustomer(string role);
+        Task<CustomerDTO?> GetCustomerById(Guid roleId ,string role);
         Task<bool> UpdateCustomer(Guid custId, EditCustomer customer);    
         Task<bool> DeleteCustomer(Guid userId);
+        //Task<IEnumerable<CustomerDTO>> GetUserByID(Guid userId );
        
 
     }

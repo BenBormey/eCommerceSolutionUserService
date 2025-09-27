@@ -20,7 +20,7 @@ namespace eCommerce.Core.DTO.Booking
         public string Status { get; set; } = "Pending";
         public string? Notes { get; set; }
         public DateTime CreatedAt { get; set; }
-
+       
         // 👉 List of details (instead of single ServiceId)
         public List<BookingDetailDTO> Details { get; set; } = new();
     }

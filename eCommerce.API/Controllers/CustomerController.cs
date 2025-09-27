@@ -18,13 +18,33 @@ namespace eCommerce.API.Controllers
         [HttpGet("GetCustomer")]
         public async Task<IActionResult> GetCustomer()
         {
-            var result = await usersService.GetAllCustomer();
+            string role = "Customer";
+            var result = await usersService.GetAllCustomer(role);
             return Ok(result);
         }
         [HttpGet("GetCustomerById/{userId:guid}")]
-        public async Task<IActionResult> GetCustomerById(Guid userId)
+        public async Task<IActionResult> GetCustomerById(Guid userId, string role)
         {
-            var result = await usersService.GetCustomerById(userId);
+            role = "Customer";
+            var result = await usersService.GetCustomerById(userId, role);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
+        [HttpGet("GetCleaner")]
+        public async Task<IActionResult> GetCleaner()
+        {
+            string role = "Cleaner";
+            var result = await usersService.GetAllCustomer(role);
+            return Ok(result);
+        }
+        [HttpGet("GetCleanerById/{userId:guid}")]
+        public async Task<IActionResult> GetCleanerById(Guid userId, string role)
+        {
+            role = "Cleaner";
+            var result = await usersService.GetCustomerById(userId, role);
             if (result == null)
             {
                 return NotFound();
@@ -55,5 +75,7 @@ namespace eCommerce.API.Controllers
             }
             return Ok(new { message = "Customer updated successfully" });
         }
+   
+
     }
 }

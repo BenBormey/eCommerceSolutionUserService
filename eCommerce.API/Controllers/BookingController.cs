@@ -4,6 +4,7 @@ using eCommerce.Core.ServiceContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.TeamFoundation.Common;
 using System.Security.Claims;
 
 namespace eCommerce.API.Controllers
@@ -32,24 +33,27 @@ namespace eCommerce.API.Controllers
         }
 
         [HttpGet("my-booking")]
-        public async Task<IActionResult> GetByBooking()
+        public async Task<IActionResult> GetByBooking(Guid userid)
         {
-            // ទាញ Claim "sub" ឬ ClaimTypes.NameIdentifier
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+           
 
-            if (string.IsNullOrEmpty(userIdClaim))
-                return Unauthorized();
-
-            // បម្លែងទៅជា Guid
-            if (!Guid.TryParse(userIdClaim, out var userId))
-                return BadRequest("Invalid user id in token");
+      
+      
 
             // Query DB ដើម្បីយក booking របស់ userId
-            var bookings = await _service.GetByIdAsync(userId);
+            var bookings = await _service.GetByIdAsync(userid);
 
             return Ok(bookings);
         }
-       
+
+        [HttpGet("Booking-Customer")]
+        [ProducesResponseType(typeof(IEnumerable<BookingDTO>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<BookingDTO>>> GetBookingCustomer(
+      [FromQuery(Name = "customid")] Guid customerId)   // bind the exact query key
+        {
+            var result = await _service.GetMyBooking(customerId); // Task<IReadOnlyList<BookingDTO>>
+            return Ok(result ?? new List<BookingDTO>());          // ✅ no casting
+        }
 
 
 
@@ -199,8 +203,14 @@ namespace eCommerce.API.Controllers
                                                  DateTime? from = null,
                                                  DateTime? to = null)
         {
-         
-            var items = await _service.ListForCleanerAsync( status, from, to);
+
+            var cleanerIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                             ?? User.FindFirst(ClaimTypes.Name)?.Value;
+            if (!Guid.TryParse(cleanerIdClaim, out var cleanerId))
+                return Unauthorized("Invalid cleaner identity.");
+
+
+            var items = await _service.ListForCleanerAsync(status, from, to, cleanerId);
             return Ok(items);
         }
   

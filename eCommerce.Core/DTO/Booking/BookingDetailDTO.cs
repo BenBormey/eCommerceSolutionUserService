@@ -9,6 +9,7 @@ namespace eCommerce.Core.DTO.Booking
     public class BookingDetailDTO
     {
         public Guid BookingDetailId { get; set; }
+        public string ServiceName { get; set; }
         public int ServiceId { get; set; }      // keep int to match Services.ServiceId
         public int Quantity { get; set; }
         public decimal Price { get; set; }

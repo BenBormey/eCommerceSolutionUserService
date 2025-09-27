@@ -14,7 +14,8 @@ namespace eCommerce.Core.RepositoryContracts
          
             string status,
             DateTime? from,
-            DateTime? to
+            DateTime? to,
+            Guid? Cleaid
         );
         Task<int> CountBooking();
         Task<BookingDTO?> GetById(Guid bookingId);
@@ -28,6 +29,7 @@ namespace eCommerce.Core.RepositoryContracts
         Task<bool> ChangeStatus(Guid bookingId, string status, Guid cleanerId);
 
         Task<bool> ExistsAsync(Guid bookingId);
-      
+        Task<IReadOnlyList<BookingDTO>> GetMyBooking(Guid customerId);
+
     }
 }

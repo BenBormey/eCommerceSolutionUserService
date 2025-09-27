@@ -17,6 +17,7 @@ namespace eCommerce.Infrastructure.Repositories
         {
             // LEFT JOIN detail rows; map later with Dapper multi-mapping
             return $@"
+
 SELECT
   b.booking_id     AS ""BookingId"",
   b.customer_id    AS ""CustomerId"",
@@ -33,9 +34,11 @@ SELECT
   d.quantity          AS ""Quantity"",
   d.price             AS ""Price"",
   d.subtotal          AS ""Subtotal"",
-  d.remark            AS ""Remark""
+  d.remark            AS ""Remark"",
+  s.name              AS ""ServiceName""
 FROM public.bookings b
-LEFT JOIN public.booking_details d ON d.booking_id = b.booking_id
+LEFT JOIN public.booking_details d ON d.booking_id = b.booking_id inner join services as s 
+on s.service_id = d.service_id 
 {extraWhere}
 ORDER BY b.booking_date DESC, b.time_slot DESC, b.created_at DESC;";
         }
@@ -105,18 +108,23 @@ WHERE b.cleaner_id = @CleanerId
         // - Pending: show open (CleanerId is null) OR mine (CleanerId = @CleanerId), both with Status='Pending'
         // - Else: only mine with that status
         //Guid cleanerId,
-        public async Task<IEnumerable<BookingDTO>> ListForCleanerAsync( string status, DateTime? from, DateTime? to)
+        public async Task<IEnumerable<BookingDTO>> ListForCleanerAsync( string status, DateTime? from, DateTime? to,Guid? cleaid)
         {
             var isPending = string.Equals(status, "Pending", StringComparison.OrdinalIgnoreCase);
             var where = isPending
                 ? @"
 WHERE b.status = 'Pending'
-  AND (@From IS NULL OR b.booking_date::date >= @From::date)
-  AND (@To   IS NULL OR b.booking_date::date <= @To::date)"
-                : @"
+  AND b.booking_date::date >= COALESCE(@From::date, b.booking_date::date)
+  AND b.booking_date::date <= COALESCE(@To::date,   b.booking_date::date)
+"
+                : $@"
 WHERE b.status = @Status 
-  AND (@From IS NULL OR b.booking_date::date >= @From::date)
-  AND (@To   IS NULL OR b.booking_date::date <= @To::date)";
+AND b.booking_date::date >= COALESCE(@From::date, b.booking_date::date)
+  AND b.booking_date::date <= COALESCE(@To::date,   b.booking_date::date)
+AND 
+   b.cleaner_id = '{cleaid}'
+
+";
 
             var sql = BaseSelect(where);
             return await QueryBookingsAsync(sql, new {  Status = status, From = from, To = to });
@@ -282,6 +290,35 @@ WHERE DATE(b.created_at) = CURRENT_DATE;
 
             return await _db.DbConnection.QueryFirstOrDefaultAsync<int>(sql);
 
+        }
+
+        public async Task<IReadOnlyList<BookingDTO>> GetMyBooking(Guid customerId)
+        {
+            var sql = $@"SELECT
+  b.booking_id     AS ""BookingId"",
+  b.customer_id    AS ""CustomerId"",
+  b.cleaner_id     AS ""CleanerId"",
+  b.booking_date   AS ""BookingDate"",
+  b.time_slot      AS ""TimeSlot"",
+  b.location_id    AS ""LocationId"",
+  b.address_detail AS ""AddressDetail"",
+  b.status         AS ""Status"",
+  b.notes          AS ""Notes"",
+  b.created_at     AS ""CreatedAt"",
+  d.booking_detail_id AS ""BookingDetailId"",
+  d.service_id        AS ""ServiceId"",
+  d.quantity          AS ""Quantity"",
+  d.price             AS ""Price"",
+  d.subtotal          AS ""Subtotal"",
+  d.remark            AS ""Remark"",
+  s.name              AS ""ServiceName""
+FROM public.bookings b
+LEFT JOIN public.booking_details d ON d.booking_id = b.booking_id inner join services as s 
+on s.service_id = d.service_id 
+  WHERE b.customer_id = '{customerId}'
+ORDER BY b.booking_date DESC, b.time_slot DESC, b.created_at DESC;";
+            var result = await _db.DbConnection.QueryAsync<BookingDTO>(sql);
+            return (IReadOnlyList<BookingDTO>)result;
         }
     }
 }

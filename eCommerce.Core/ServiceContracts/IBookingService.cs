@@ -1,4 +1,5 @@
 ﻿using eCommerce.Core.DTO.Booking;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,8 +22,8 @@ namespace eCommerce.Core.ServiceContracts
         Task<bool> ConfirmAsync(Guid bookingId, Guid cleanerId);
         Task<bool> CompleteAsync(Guid bookingId, Guid cleanerId);
         Task<bool> CancelAsync(Guid bookingId, Guid cleanerId);
-        Task<IEnumerable<BookingDTO>> ListForCleanerAsync( string status, DateTime? from, DateTime? to);
+        Task<IEnumerable<BookingDTO>> ListForCleanerAsync( string status, DateTime? from, DateTime? to, Guid? cleaid);
         Task<int> CountBooking();
-
+        Task<IReadOnlyList<BookingDTO>> GetMyBooking(Guid customerId);
     }
 }

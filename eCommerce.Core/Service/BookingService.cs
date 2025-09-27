@@ -66,15 +66,21 @@ namespace eCommerce.Core.Service
             // affected = 1 ⇒ success, else fail
             return affected;
         }
-        public async Task<IEnumerable<BookingDTO>> ListForCleanerAsync(string status, DateTime? from, DateTime? to)
+        public async Task<IEnumerable<BookingDTO>> ListForCleanerAsync(string status, DateTime? from, DateTime? to,Guid? cleaid)
         {
-            var rows = await _repo.ListForCleanerAsync(status, from, to);
+            var rows = await _repo.ListForCleanerAsync(status, from, to,cleaid);
             return (IEnumerable<BookingDTO>)rows;
         }
 
         public async Task<int> CountBooking()
         {
             return await _repo.CountBooking();
+        }
+
+        public async Task<IReadOnlyList<BookingDTO>> GetMyBooking(Guid customerId)
+        {
+            var result  = await _repo.GetMyBooking(customerId);
+            return (IReadOnlyList<BookingDTO>)result;
         }
     }
 }

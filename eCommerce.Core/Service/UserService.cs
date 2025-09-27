@@ -27,22 +27,27 @@ public class UserService : IUsersService
         return true;
     }
 
-    public async Task<IEnumerable<CustomerDTO>> GetAllCustomer()
+    public async Task<IEnumerable<CustomerDTO>> GetAllCustomer(string role)
     {
-        var result  = await _usersRepository.GetAllCustomer();
+        var result  = await _usersRepository.GetAllCustomer(role);
         return result;
     }
 
-    public async Task<CustomerDTO?> GetCustomerById(Guid userId)
+    public async Task<CustomerDTO?> GetCustomerById(Guid userId, string role)
     {
-        var rsult  = await _usersRepository.GetCustomerById(userId);
+        var rsult  = await _usersRepository.GetCustomerById(userId,role);
         return rsult;
     }
 
+    //public async Task<IEnumerable<CustomerDTO>> GetUserByID(Guid userId)
+    //{
+    //    var result = await _usersRepository.GetCustomerById(userId);
+    //    return (IEnumerable<CustomerDTO>)result;
+    //}
+
     public async Task<AuthenticationResponse?> Login(LoginRequest loginRequest)
     {
-        ApplicationUser user =   await
-        _usersRepository.GetUserByEmailAndPassword(loginRequest.Email,loginRequest.Password);
+        ApplicationUser user =   await  _usersRepository.GetUserByEmailAndPassword(loginRequest.Email,loginRequest.Password);
         if (user == null)
         {
             return null;

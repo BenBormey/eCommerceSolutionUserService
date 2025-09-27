@@ -110,9 +110,9 @@ WHERE ur.""UserID"" = @UserId;";
                ?? Enumerable.Empty<string>();
     }
 
-    public async Task<IEnumerable<CustomerDTO>> GetAllCustomer()
+    public async Task<IEnumerable<CustomerDTO>> GetAllCustomer(string role)
     {
-        var sql = @"
+        var sql = $@"
 select 
 user_id as UserId,
 full_name as FullName,
@@ -122,13 +122,13 @@ role as Role,
 profile_image as ProfileImage,
 status as Status 
 
-from public.users where role = 'Customer'
+from public.users where role = '{role}'
 order by full_name;";
         var result  = await _context.DbConnection.QueryAsync<CustomerDTO>(sql);
         return result;
     }
 
-    public Task<CustomerDTO?> GetCustomerById(Guid userId)
+    public Task<CustomerDTO?> GetCustomerById(Guid userId,string role)
     {
         var sql = $@"select 
 user_id as UserId,
@@ -139,7 +139,7 @@ role as Role,
 profile_image as ProfileImage,
 status as Status 
 
-from public.users where role = 'Customer' and user_id = '51ee687a-8553-4be0-97a3-7d32feded0a6'
+from public.users where role = '{role}' and user_id = '{userId}'
 order by full_name;";
         var result =  _context.DbConnection.QueryFirstOrDefaultAsync<CustomerDTO>(sql);
         return result;
@@ -152,9 +152,9 @@ order by full_name;";
 	email = '{customer.Email}',
 	phone = '{customer.Phone}',
 	role = '{customer.Role}',
-	profile_image = '{customer.ProfileImage}',
+	profile_image = '{customer.ProfileImage}'
 
-	where userid = '{custId}'
+	where user_id = '{custId}'
 ;";
         var rows = await _context.DbConnection.ExecuteAsync(sql);
         return rows > 0;
@@ -169,4 +169,25 @@ delete from public.users where ""role"" = 'Customer' and user_id ='{userId}'
         var rows = await _context.DbConnection.ExecuteAsync(sql);
         return rows > 0;
     }
+
+//    public async Task<IEnumerable<CustomerDTO>> GetUserByID(Guid userId)
+//    {
+//        var sql = $@"select 
+//user_id as UserId,
+//full_name as FullName,
+//Email as email,
+//phone as Phone,
+//role as Role,
+//profile_image as ProfileImage,
+//status  as Status
+
+
+
+//from 
+
+//users where user_id = '{userId}';";
+
+//        var result = await _context.DbConnection.QueryAsync<CustomerDTO>(sql);
+//        return result;
+//    }
 }
