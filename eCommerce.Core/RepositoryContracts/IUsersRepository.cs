@@ -11,11 +11,8 @@ namespace eCommerce.Core.RepositoryContracts
 {
     public interface IUsersRepository
     {
-        /// <summary>
-        /// Method to add a user to the data store and return the added user
-        /// </summary>
-        /// <param name="user"></param>
-        /// <returns></returns>
+       
+        Task<bool> UpdatePassword(Guid userid, UpdatePasswordDto update);
         Task<ApplicationUser?> AddUser(ApplicationUser user);
         Task<IEnumerable<string>> GetRolesAsync(Guid userId);
         Task<Guid?> GetRoleIdByNameAsync(string roleName);

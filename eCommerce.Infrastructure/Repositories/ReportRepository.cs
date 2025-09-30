@@ -50,7 +50,6 @@ FROM public.get_customer_report_v2(
     @Take
 );";
 
-            // Dapper នឹង map null -> DBNull.Value ដោយស្វ័យប្រវត្តិ
             var param = new
             {
                 FromDate = from,
@@ -68,7 +67,7 @@ FROM public.get_customer_report_v2(
 
        
 
-            // 2. Cleaner Report
+           
             public async Task<IReadOnlyList<CleanerReportRow>> GetCleanerReportAsync(DateTime? fromDate, DateTime? toDate)
             {
                 const string sql = @"SELECT * FROM public.get_cleaner_report(@FromDate::date, @ToDate::date);";
@@ -83,7 +82,6 @@ FROM public.get_customer_report_v2(
                 return rows.AsList();
             }
 
-            // 3. Service Usage Report
             public async Task<IReadOnlyList<ServiceUsageReportRow>> GetServiceUsageReportAsync(DateTime? fromDate, DateTime? toDate)
             {
                 const string sql = @"SELECT * FROM public.get_service_usage_report(@FromDate::date, @ToDate::date);";
@@ -98,7 +96,7 @@ FROM public.get_customer_report_v2(
                 return rows.AsList();
             }
 
-            // 4. Revenue Report
+
             public async Task<IReadOnlyList<RevenueReportRow>> GetRevenueReportAsync(string groupBy)
             {
                 const string sql = @"SELECT * FROM public.get_revenue_report(@GroupBy);";
@@ -109,7 +107,7 @@ FROM public.get_customer_report_v2(
                 return rows.AsList();
             }
 
-            // 5. Booking Trend Report
+
             public async Task<IReadOnlyList<BookingTrendReportRow>> GetBookingTrendReportAsync(DateTime? fromDate, DateTime? toDate)
             {
                 const string sql = @"SELECT * FROM public.get_booking_trend_report(@FromDate::date, @ToDate::date);";
@@ -124,7 +122,7 @@ FROM public.get_customer_report_v2(
                 return rows.AsList();
             }
 
-            // 6. Cancellation Report
+
             public async Task<IReadOnlyList<CancellationReportRow>> GetCancellationReportAsync(DateTime? fromDate, DateTime? toDate)
             {
                 const string sql = @"SELECT * FROM public.get_cancellation_report(@FromDate::date, @ToDate::date);";
@@ -139,7 +137,7 @@ FROM public.get_customer_report_v2(
                 return rows.AsList();
             }
 
-            // 7. Top Customers Report
+    
             public async Task<IReadOnlyList<TopCustomerReportRow>> GetTopCustomersReportAsync(int limitCount)
             {
                 const string sql = @"SELECT * FROM public.get_top_customers_report(@LimitCount);";
@@ -150,7 +148,7 @@ FROM public.get_customer_report_v2(
                 return rows.AsList();
             }
 
-            // 8. Payment Report
+         
             public async Task<IReadOnlyList<PaymentReportRow>> GetPaymentReportAsync(DateTime? fromDate, DateTime? toDate)
             {
                 const string sql = @"SELECT * FROM public.get_payment_report(@FromDate::date, @ToDate::date);";
@@ -244,16 +242,17 @@ FROM public.bookings;";
 SELECT
   b.booking_id                                           AS ""Id"",
   COALESCE(c.full_name, c.email, 'Customer')             AS ""CustomerName"",
-  'Cleaning'                                             AS ""Category"",
+ sc.name                                           AS ""Category"",
   COALESCE(b.amount, SUM(d.price * d.quantity), 0)::numeric(12,2) AS ""Price"",
   b.status                                               AS ""Status"",
   b.created_at                                           AS ""CreatedAt""
 FROM public.bookings b
 LEFT JOIN public.booking_details d ON d.booking_id = b.booking_id
-LEFT JOIN public.users c       ON c.user_id   = b.customer_id     -- adjust if your table is named differently
-GROUP BY b.booking_id, c.full_name, c.email, b.status, b.created_at, b.amount
+LEFT JOIN public.users c       ON c.user_id   = b.customer_id    inner join public.services as s on s.service_id 
+= d.service_id inner join public.categories as sc on sc.category_id = s.category_id
+GROUP BY b.booking_id, c.full_name, c.email, b.status, b.created_at, b.amount ,sc.name 
 ORDER BY b.created_at DESC
-LIMIT 8;";
+LIMIT 5;";
 
             var rows = await _context.DbConnection.QueryAsync<RecentBookingItemDTO>(sql);
             return rows.AsList();

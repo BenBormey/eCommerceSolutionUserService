@@ -19,6 +19,8 @@ public class UsersRepository : IUsersRepository
         !string.IsNullOrWhiteSpace(s) && Regex.IsMatch(s, @"^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$");
 
     // ✅ Add new user with hashed password
+
+
     public async Task<ApplicationUser?> AddUser(ApplicationUser user)
     {
         user.UserId = Guid.NewGuid();
@@ -45,7 +47,9 @@ RETURNING
     role,
     profile_image AS ""ProfileImage"",
     status,
-    created_at    AS ""CreatedAt"";";
+    created_at    AS ""CreatedAt""
+
+;";
 
         return await _context.DbConnection.QueryFirstOrDefaultAsync<ApplicationUser>(sql, user);
 
@@ -170,24 +174,45 @@ delete from public.users where ""role"" = 'Customer' and user_id ='{userId}'
         return rows > 0;
     }
 
-//    public async Task<IEnumerable<CustomerDTO>> GetUserByID(Guid userId)
-//    {
-//        var sql = $@"select 
-//user_id as UserId,
-//full_name as FullName,
-//Email as email,
-//phone as Phone,
-//role as Role,
-//profile_image as ProfileImage,
-//status  as Status
+    public async Task<bool> UpdatePassword(Guid userId, UpdatePasswordDto update)
+    {
+  
+        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(update.NewPassword);
+
+        var sql = @"
+        UPDATE users 
+        SET password_hash = @PasswordHash
+        WHERE user_id = @UserId;
+    ";
+
+        var rows = await _context.DbConnection.ExecuteAsync(sql, new
+        {
+            PasswordHash = hashedPassword,
+            UserId = userId
+        });
+
+        return rows > 0;
+    }
+
+
+    //    public async Task<IEnumerable<CustomerDTO>> GetUserByID(Guid userId)
+    //    {
+    //        var sql = $@"select 
+    //user_id as UserId,
+    //full_name as FullName,
+    //Email as email,
+    //phone as Phone,
+    //role as Role,
+    //profile_image as ProfileImage,
+    //status  as Status
 
 
 
-//from 
+    //from 
 
-//users where user_id = '{userId}';";
+    //users where user_id = '{userId}';";
 
-//        var result = await _context.DbConnection.QueryAsync<CustomerDTO>(sql);
-//        return result;
-//    }
+    //        var result = await _context.DbConnection.QueryAsync<CustomerDTO>(sql);
+    //        return result;
+    //    }
 }

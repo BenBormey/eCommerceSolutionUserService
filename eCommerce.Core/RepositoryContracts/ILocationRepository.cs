@@ -9,7 +9,7 @@ namespace eCommerce.Core.RepositoryContracts
 {
     public interface ILocationRepository
     {
-        Task<IEnumerable<LocationDTO>> GetLocations();
+        Task<IEnumerable<LocationDTO>> GetLocations(Guid userid);
         Task<LocationDTO?> GetLocationById(int locationId);
 
         // Create

@@ -42,7 +42,7 @@ namespace eCommerce.Core.Service
 
 
         public string GenerateToken(Guid userId, string username, string roles)
-            => GenerateTokenCore(userId, username, email: null, ParseRolesCsv(roles));
+            => GenerateTokenCore(userId, username, email: null, roles);
 
         public ClaimsPrincipal? ValidateToken(string token)
         {
@@ -80,22 +80,20 @@ namespace eCommerce.Core.Service
             return Guid.TryParse(id, out var guid) ? guid : null;
         }
 
-        // ------------------------------------------------------------
-        // INTERNALS
-        // ------------------------------------------------------------
-        private string GenerateTokenCore(Guid userId, string username, string? email, IEnumerable<string>? roles)
+    
+        private string GenerateTokenCore(Guid userId, string username, string? email,string? roles)
         {
             var now = DateTime.UtcNow;
             var expires = now.AddMinutes(_opts.AccessTokenMinutes > 0 ? _opts.AccessTokenMinutes : 60);
 
             var claims = new List<Claim>
             {
-                new(JwtRegisteredClaimNames.Sub, userId.ToString()),       // subject = user id
-                new(ClaimTypes.NameIdentifier, userId.ToString()),         // ASP.NET friendly
+                new(JwtRegisteredClaimNames.Sub, userId.ToString()),       
+                new(ClaimTypes.NameIdentifier, userId.ToString()),      
                 new(JwtRegisteredClaimNames.UniqueName, username ?? string.Empty),
                 new(ClaimTypes.Name, username ?? string.Empty),
-             //   new(ClaimTypes.phon, phone ?? string.Empty),
-
+                new(ClaimTypes.Role, roles ?? string.Empty),
+          
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new(JwtRegisteredClaimNames.Iat, ToUnixTime(now), ClaimValueTypes.Integer64)
             };
@@ -106,15 +104,15 @@ namespace eCommerce.Core.Service
                 claims.Add(new(ClaimTypes.Email, email));
             }
 
-            if (roles != null)
-            {
-                foreach (var r in roles)
-                {
-                    var role = (r ?? string.Empty).Trim();
-                    if (!string.IsNullOrWhiteSpace(role))
-                        claims.Add(new Claim(ClaimTypes.Role, role));
-                }
-            }
+            //if (roles != null)
+            //{
+            //    foreach (var r in roles)
+            //    {
+            //        var role = (r ?? string.Empty).Trim();
+            //        if (!string.IsNullOrWhiteSpace(role))
+            //            claims.Add(new Claim(ClaimTypes.Role, role));
+            //    }
+            //}
 
             var creds = new SigningCredentials(new SymmetricSecurityKey(_keyBytes), SecurityAlgorithms.HmacSha256);
 
@@ -139,3 +137,7 @@ namespace eCommerce.Core.Service
             => ((long)(utc - DateTime.UnixEpoch).TotalSeconds).ToString();
     }
 }
+
+
+
+

@@ -9,8 +9,10 @@ namespace eCommerce.Core.DTO.Booking
     public class BookingDTO
     {
         public Guid BookingId { get; set; }
-        public Guid CustomerId { get; set; }
+        public Guid? CustomerId { get; set; }
         public Guid? CleanerId { get; set; }
+        public string? CleanerName { get; set; }
+        public string? CustomerName { get; set; }
 
         public DateTime BookingDate { get; set; }
         public TimeSpan TimeSlot { get; set; }   // maps to PostgreSQL "time"
@@ -22,6 +24,6 @@ namespace eCommerce.Core.DTO.Booking
         public DateTime CreatedAt { get; set; }
        
         // 👉 List of details (instead of single ServiceId)
-        public List<BookingDetailDTO> Details { get; set; } = new();
+        public List<BookingDetailDTO> Details { get; set; }
     }
 }

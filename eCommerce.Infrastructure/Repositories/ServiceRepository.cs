@@ -171,7 +171,8 @@ category_id  = @CategoryId
                     updateDto.Price,
                     updateDto.DurationMinutes,
                     updateDto.ImageUrl,
-                    updateDto.IsActive
+                    updateDto.IsActive,
+                    updateDto.CategoryId
                 });
 
             return result;

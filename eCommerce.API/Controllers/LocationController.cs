@@ -2,6 +2,7 @@
 using eCommerce.Core.ServiceContracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace eCommerce.API.Controllers
 {
@@ -22,7 +23,17 @@ namespace eCommerce.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAll()
         {
-            var items = await _locationService.GetAllAsync();
+        
+
+            var locationclaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? User.FindFirst(ClaimTypes.Name)?.Value;
+            if (!Guid.TryParse(locationclaim, out var cleanerId))
+                return Unauthorized("Invalid cleaner identity.");
+
+
+
+
+            var items = await _locationService.GetAllAsync(cleanerId);
             if (items == null || !items.Any())
                 return NotFound("No locations found.");
             return Ok(items);

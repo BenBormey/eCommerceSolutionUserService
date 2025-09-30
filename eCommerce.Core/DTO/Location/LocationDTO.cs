@@ -13,5 +13,7 @@ namespace eCommerce.Core.DTO.Location
         public string? District { get; set; }
         public string? PostalCode { get; set; }
         public DateTime CreatedAt { get; set; }
+        public  Guid user_id { get; set; }
+        public string full_name { get; set; }
     }
 }

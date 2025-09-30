@@ -9,7 +9,7 @@ namespace eCommerce.Core.ServiceContracts
 {
     public interface ILocationService
     {
-        Task<IEnumerable<LocationDTO>> GetAllAsync();
+        Task<IEnumerable<LocationDTO>> GetAllAsync(Guid userId);
         Task<LocationDTO?> GetByIdAsync(int locationId);
 
         // Create

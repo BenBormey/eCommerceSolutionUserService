@@ -20,5 +20,7 @@ namespace eCommerce.Core.DTO.Location
 
         [MaxLength(20)]
         public string? PostalCode { get; set; }
+
+        
     }
 }

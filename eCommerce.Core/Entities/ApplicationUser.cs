@@ -30,5 +30,6 @@ public class ApplicationUser
     public ICollection<Review> ReviewsForCleaner { get; set; } = new List<Review>();
     public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
     public ICollection<AdminLog> AdminLogs { get; set; } = new List<AdminLog>();
+    public ICollection<Location> Login { get; set; }
 
 }

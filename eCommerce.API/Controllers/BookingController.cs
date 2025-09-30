@@ -11,6 +11,7 @@ namespace eCommerce.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
 
     public class BookingController : ControllerBase
     {
@@ -155,9 +156,8 @@ namespace eCommerce.API.Controllers
             var ok = await _service.ConfirmAsync(id, cleanerId);   // pass cleanerId
             if (!ok) return Conflict("Booking is not Pending or already confirmed.");
 
-            var b = await _service.GetByIdAsync(id);
-            if (b is null) return NotFound($"Booking {id} not found.");
-            return Ok(b);
+           
+            return Ok();
         }
 
 
@@ -175,8 +175,7 @@ namespace eCommerce.API.Controllers
                 return Unauthorized("Invalid cleaner identity.");
             var ok = await _service.CompleteAsync(id,cleanerId);
             if (!ok) return NotFound($"Booking {id} not found.");
-            var b = await _service.GetByIdAsync(id);
-            return Ok(b);
+            return Ok();
         }
 
         // PATCH: api/Booking/{id}/cancel

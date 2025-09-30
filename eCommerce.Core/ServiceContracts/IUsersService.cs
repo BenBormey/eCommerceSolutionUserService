@@ -15,10 +15,12 @@ namespace eCommerce.Core.ServiceContracts;
 public interface IUsersService
 {
  Task<AuthenticationResponse?> Login(LoginRequest loginRequest);
+    Task<bool> UpdatePassword(Guid userid,UpdatePasswordDto update);
  Task<AuthenticationResponse?> Register(RegisterRequest registerRequest);
     Task<IEnumerable<CustomerDTO>> GetAllCustomer(string role);
     Task<CustomerDTO?> GetCustomerById(Guid userId,string role);
     Task<bool> UpdateCustomer(Guid customerid, EditCustomer customer);
     Task<bool> DeleteCustomer(Guid userId);
+
     //Task<IEnumerable<CustomerDTO>> GetUserByID(Guid userId);
 }

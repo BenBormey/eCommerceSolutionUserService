@@ -29,7 +29,11 @@ namespace eCommerce.Core.Entities
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        [Column("user_id")]
+        public int? UserId { get; set; }  
 
+        [ForeignKey("UserId")]
+        public ApplicationUser? User { get; set; } 
         // nav
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
     }

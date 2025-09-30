@@ -14,17 +14,19 @@ namespace eCommerce.Infrastructure.Repositories
         public LocationRepository(DapperDbContext db) => _db = db;
 
         // Read all
-        public async Task<IEnumerable<LocationDTO>> GetLocations()
+        public async Task<IEnumerable<LocationDTO>> GetLocations(Guid userId )
         {
-            const string sql = @"
-                SELECT 
-                    location_id   AS ""LocationId"",
-                    city          AS ""City"",
-                    district      AS ""District"",
-                    postal_code   AS ""PostalCode"",
-                    created_at    AS ""CreatedAt""
-                FROM public.locations
-                ORDER BY created_at DESC;";
+             string sql = $@"
+                           SELECT 
+                    l.location_id   AS ""LocationId"",
+                    l.city          AS ""City"",
+                    l.district      AS  ""District"",
+                    l.postal_code   AS ""PostalCode"",
+                    l.created_at    AS ""CreatedAt"",
+s.user_id, s.full_name
+                FROM public.locations as l inner join public.users as s on
+				s.user_id  = l.user_id where l.user_id  = '{userId}'
+                ORDER BY l.created_at DESC;";
 
             var conn = _db.DbConnection;
             return await conn.QueryAsync<LocationDTO>(sql);
@@ -34,12 +36,13 @@ namespace eCommerce.Infrastructure.Repositories
         public async Task<LocationDTO?> GetLocationById(int locationId)
         {
             const string sql = @"
-                SELECT 
-                    location_id   AS ""LocationId"",
-                    city          AS ""City"",
-                    district      AS ""District"",
-                    postal_code   AS ""PostalCode"",
-                    created_at    AS ""CreatedAt""
+            SELECT 
+                    l.location_id   AS ""LocationId"",
+                    l.city          AS ""City"",
+                    l.district      AS  ""District"",
+                    l.postal_code   AS ""PostalCode"",
+                    l.created_at    AS ""CreatedAt"",
+s.user_id, s.full_name
                 FROM public.locations
                 WHERE location_id = @LocationId;";
 
@@ -51,14 +54,15 @@ namespace eCommerce.Infrastructure.Repositories
         public async Task<LocationDTO> Create(LocationCreateDTO dto)
         {
             const string sql = @"
-                INSERT INTO public.locations (city, district, postal_code, created_at)
-                VALUES (@City, @District, @PostalCode, NOW())
+                INSERT INTO public.locations (city, district, postal_code, created_at,user_id)
+                VALUES (@City, @District, @PostalCode, NOW(),@user_id)
                 RETURNING 
                     location_id   AS ""LocationId"",
                     city          AS ""City"",
                     district      AS ""District"",
                     postal_code   AS ""PostalCode"",
-                    created_at    AS ""CreatedAt"";";
+                    created_at    AS ""CreatedAt"",
+                    user_id;";
 
             var conn = _db.DbConnection;
             return await conn.QuerySingleAsync<LocationDTO>(sql, dto);
@@ -104,12 +108,13 @@ namespace eCommerce.Infrastructure.Repositories
         public async Task<IEnumerable<LocationDTO>> Search(string? city = null, string? district = null, string? postalCode = null)
         {
             const string sql = @"
-                SELECT 
-                    location_id   AS ""LocationId"",
-                    city          AS ""City"",
-                    district      AS ""District"",
-                    postal_code   AS ""PostalCode"",
-                    created_at    AS ""CreatedAt""
+                   SELECT 
+                    l.location_id   AS ""LocationId"",
+                    l.city          AS ""City"",
+                    l.district      AS  ""District"",
+                    l.postal_code   AS ""PostalCode"",
+                    l.created_at    AS ""CreatedAt"",
+s.user_id, s.full_name
                 FROM public.locations
                 WHERE (@City IS NULL OR city ILIKE '%' || @City || '%')
                   AND (@District IS NULL OR district ILIKE '%' || @District || '%')

@@ -18,7 +18,6 @@ namespace eCommerce.Core.Service
             _repo = repo;
         }
 
-        // READ
         public Task<ReviewDTO?> GetByIdAsync(int reviewId) => _repo.GetById(reviewId);
 
         public Task<ReviewDTO?> GetByBookingAsync(Guid bookingId) => _repo.GetByBooking(bookingId);
@@ -29,12 +28,11 @@ namespace eCommerce.Core.Service
         public Task<IEnumerable<ReviewDTO>> GetByCustomerAsync(Guid customerId, int? limit = null, int? offset = null)
             => _repo.GetByCustomer(customerId, limit, offset);
 
-        // CREATE
+  
         public async Task<ReviewDTO> CreateAsync(ReviewCreateDTO dto)
         {
             ValidateRating(dto.Rating);
 
-            // enforce one review per booking
             var existing = await _repo.GetByBooking(dto.BookingId);
             if (existing is not null)
                 throw new InvalidOperationException("This booking already has a review.");
@@ -42,7 +40,7 @@ namespace eCommerce.Core.Service
             return await _repo.Create(dto);
         }
 
-        // UPDATE
+
         public async Task<ReviewDTO?> UpdateAsync(int reviewId, ReviewUpdateDTO dto)
         {
             if (dto.ReviewId == 0) dto.ReviewId = reviewId;
@@ -54,10 +52,9 @@ namespace eCommerce.Core.Service
             return await _repo.Update(reviewId, dto);
         }
 
-        // DELETE
+
         public Task<bool> DeleteAsync(int reviewId) => _repo.Delete(reviewId);
 
-        // HELPERS
         public Task<bool> ExistsAsync(int reviewId) => _repo.Exists(reviewId);
 
         public Task<(double Average, int Count)> GetCleanerRatingSummaryAsync(Guid cleanerId)

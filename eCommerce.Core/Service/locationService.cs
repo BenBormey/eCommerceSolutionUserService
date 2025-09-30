@@ -22,7 +22,7 @@ namespace eCommerce.Core.Service
         }
 
         // Read
-        public Task<IEnumerable<LocationDTO>> GetAllAsync() => _repo.GetLocations();
+        public Task<IEnumerable<LocationDTO>> GetAllAsync(Guid userid) => _repo.GetLocations(userid);
 
         public Task<LocationDTO?> GetByIdAsync(int locationId) => _repo.GetLocationById(locationId);
 

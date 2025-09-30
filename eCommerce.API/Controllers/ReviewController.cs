@@ -28,7 +28,7 @@ namespace eCommerce.API.Controllers
             return Ok(item);
         }
 
-        // GET: api/Review/booking/{bookingId}
+       
         [HttpGet("booking/{bookingId:guid}")]
         [ProducesResponseType(typeof(ReviewDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -39,7 +39,7 @@ namespace eCommerce.API.Controllers
             return Ok(item);
         }
 
-        // GET: api/Review/cleaner/{cleanerId}?limit=&offset=
+       
         [HttpGet("cleaner/{cleanerId:guid}")]
         [ProducesResponseType(typeof(IEnumerable<ReviewDTO>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetByCleaner(Guid cleanerId, [FromQuery] int? limit, [FromQuery] int? offset)
@@ -48,7 +48,7 @@ namespace eCommerce.API.Controllers
             return Ok(items); // empty array if none
         }
 
-        // GET: api/Review/customer/{customerId}?limit=&offset=
+      
         [HttpGet("customer/{customerId:guid}")]
         [ProducesResponseType(typeof(IEnumerable<ReviewDTO>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetByCustomer(Guid customerId, [FromQuery] int? limit, [FromQuery] int? offset)
@@ -57,7 +57,7 @@ namespace eCommerce.API.Controllers
             return Ok(items);
         }
 
-        // GET: api/Review/cleaner/{cleanerId}/summary
+
         [HttpGet("cleaner/{cleanerId:guid}/summary")]
         [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetCleanerSummary(Guid cleanerId)

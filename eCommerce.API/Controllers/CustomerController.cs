@@ -1,4 +1,5 @@
 ﻿using eCommerce.Core.ServiceContracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,6 +7,7 @@ namespace eCommerce.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CustomerController : ControllerBase
     {
         private readonly IUsersService usersService;
@@ -16,6 +18,7 @@ namespace eCommerce.API.Controllers
 
         }
         [HttpGet("GetCustomer")]
+       
         public async Task<IActionResult> GetCustomer()
         {
             string role = "Customer";
@@ -34,6 +37,7 @@ namespace eCommerce.API.Controllers
             return Ok(result);
         }
         [HttpGet("GetCleaner")]
+        
         public async Task<IActionResult> GetCleaner()
         {
             string role = "Cleaner";
@@ -52,6 +56,7 @@ namespace eCommerce.API.Controllers
             return Ok(result);
         }
         [HttpDelete("DeleteCustomer/{userId:guid}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteCustomer(Guid userId)
         {
             var result = await usersService.DeleteCustomer(userId);
@@ -62,6 +67,7 @@ namespace eCommerce.API.Controllers
             return Ok(new { message = "Customer deleted successfully" });
         }
         [HttpPut("UpdateCustomer")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> UpdateCustomer(Guid custId, [FromBody] eCommerce.Core.DTO.Customer.EditCustomer customer)
         {
             if (customer == null || custId == Guid.Empty)

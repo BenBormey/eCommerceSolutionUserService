@@ -75,7 +75,8 @@ public class UserService : IUsersService
             IsActive = true,
             Status = "Active",
 
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password)
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password),
+            ProfileImage = registerRequest.ProfileImage
         };
 
         ApplicationUser? registeredUser = await _usersRepository.AddUser(user);
@@ -96,6 +97,12 @@ public class UserService : IUsersService
     public async Task<bool> UpdateCustomer(Guid custId, EditCustomer customer)
     {
        await _usersRepository.UpdateCustomer(custId,customer);
+        return true;
+    }
+
+    public async Task<bool> UpdatePassword(Guid userid, UpdatePasswordDto update)
+    {
+        await _usersRepository.UpdatePassword(userid,update);
         return true;
     }
 }

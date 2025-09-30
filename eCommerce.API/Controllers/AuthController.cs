@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.Linq;
+using System.Security.Claims;
 
 namespace eCommerce.API.Controllers
 {
@@ -43,13 +44,13 @@ namespace eCommerce.API.Controllers
             if (auth is null || auth.Success == false)
                 return Unauthorized(new { title = "Invalid email or password" });
 
-            var roles = !string.IsNullOrWhiteSpace(auth.Role)
-        ? new[] { auth.Role }      
-        : new[] { "Customer" };
+        //    var roles = !string.IsNullOrWhiteSpace(auth.Role)
+        //? new[] { auth.Role }      
+        //: new[] { "Customer" };
 
 
     
-            var token = _jwt.GenerateToken(auth.UserId, auth.Fullname, roles.ToString());
+            var token = _jwt.GenerateToken(auth.UserId, auth.Fullname, auth.Role);
 
           
             var expiresAt = DateTime.UtcNow.AddHours(1);
@@ -64,13 +65,40 @@ namespace eCommerce.API.Controllers
                     fullName = auth.Fullname,
                     email = auth.Email,
                     phone= auth.phone,
-                    
-                    roles
+                    auth.Role
                 }
             });
         }
 
 
+        [HttpPut("UpdatePasswork")]
+        public async Task<IActionResult> UpdatePassword(Guid? id,[FromBody] UpdatePasswordDto update)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (update.NewPassword != update.ConfirmPassword)
+                return BadRequest(new { error = "NewPassword and ConfirmPassword do not match." });
+            if (id == null)
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                          ?? User.FindFirst(ClaimTypes.Name)?.Value;
+                if (!Guid.TryParse(userIdClaim, out var userid))
+                    return Unauthorized("Invalid cleaner identity.");
+
+
+                await usersService.UpdatePassword(userid, update);
+            }
+            else
+            {
+
+                await usersService.UpdatePassword((Guid)id, update);
+            }
+
+
+
+            return NoContent();
+        }
     }
     
 }

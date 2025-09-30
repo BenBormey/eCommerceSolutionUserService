@@ -19,26 +19,31 @@ namespace eCommerce.Infrastructure.Repositories
             return $@"
 
 SELECT
-  b.booking_id     AS ""BookingId"",
-  b.customer_id    AS ""CustomerId"",
-  b.cleaner_id     AS ""CleanerId"",
-  b.booking_date   AS ""BookingDate"",
-  b.time_slot      AS ""TimeSlot"",
-  b.location_id    AS ""LocationId"",
-  b.address_detail AS ""AddressDetail"",
-  b.status         AS ""Status"",
-  b.notes          AS ""Notes"",
-  b.created_at     AS ""CreatedAt"",
-  d.booking_detail_id AS ""BookingDetailId"",
-  d.service_id        AS ""ServiceId"",
-  d.quantity          AS ""Quantity"",
-  d.price             AS ""Price"",
-  d.subtotal          AS ""Subtotal"",
-  d.remark            AS ""Remark"",
-  s.name              AS ""ServiceName""
+    b.booking_id      AS ""BookingId"",
+    u.user_id         AS ""CustomerId"",
+    u.full_name       AS ""CustomerName"",
+    u.phone           AS ""CustomerPhone"",
+    u1.user_id        AS ""CleanerId"",
+    u1.full_name      AS ""CleanerName"",
+    u1.phone          AS ""CleanerPhone"",
+    b.booking_date    AS ""BookingDate"",
+    b.time_slot       AS ""TimeSlot"",
+    b.status          AS ""Status"",
+    b.notes           AS ""Notes"",
+    b.address_detail  AS ""AddressDetail"",
+    b.created_at      AS ""CreatedAt"",
+    d.booking_detail_id AS ""BookingDetailId"",
+    d.service_id        AS ""ServiceId"",
+    s.name              AS ""ServiceName"",
+    d.quantity          AS ""Quantity"",
+    d.price             AS ""Price"",
+    d.subtotal          AS ""Subtotal"",
+    d.remark            AS ""Remark""
 FROM public.bookings b
-LEFT JOIN public.booking_details d ON d.booking_id = b.booking_id inner join services as s 
-on s.service_id = d.service_id 
+LEFT JOIN public.users u ON u.user_id = b.customer_id
+LEFT JOIN public.users u1 ON u1.user_id = b.cleaner_id
+LEFT JOIN public.booking_details d ON d.booking_id = b.booking_id
+LEFT JOIN public.services s ON s.service_id = d.service_id
 {extraWhere}
 ORDER BY b.booking_date DESC, b.time_slot DESC, b.created_at DESC;";
         }
@@ -52,36 +57,39 @@ ORDER BY b.booking_date DESC, b.time_slot DESC, b.created_at DESC;";
         // ---------- Queries with multi-mapping ----------
         private async Task<IEnumerable<BookingDTO>> QueryBookingsAsync(string sql, object param)
         {
-            using var conn = _db.DbConnection; // property returning IDbConnection
+            using var conn = _db.DbConnection; // IDbConnection
+
             var lookup = new Dictionary<Guid, BookingDTO>();
 
-            // Multi-mapping: Booking row + Detail row → BookingDTO (with Details list)
-            var _ = await conn.QueryAsync<BookingDTO, BookingDetailDTO, BookingDTO>(
+            var list = await conn.QueryAsync<BookingDTO, BookingDetailDTO, BookingDTO>(
                 sql,
-                (b, d) =>
+                (booking, detail) =>
                 {
-                    if (!lookup.TryGetValue(b.BookingId, out var agg))
+          
+                    if (!lookup.TryGetValue(booking.BookingId, out var agg))
                     {
-                        agg = b;
+                        agg = booking;
                         agg.Details = new List<BookingDetailDTO>();
                         lookup.Add(agg.BookingId, agg);
                     }
 
-                    if (d != null && d.BookingDetailId != Guid.Empty)
-                        agg.Details!.Add(d);
+                    // Add detail if not null
+                    if (detail != null && detail.BookingDetailId != Guid.Empty)
+                        agg.Details.Add(detail);
 
                     return agg;
                 },
                 param,
-                splitOn: "BookingDetailId"
+                splitOn: "BookingDetailId" // must match the alias of BookingDetailDTO columns
             );
 
             return lookup.Values;
         }
 
+
         public async Task<BookingDTO?> GetById(Guid bookingId)
         {
-            var sql = BaseSelect("WHERE b.booking_id = @Id");
+            var sql = BaseSelect("WHERE b.booking_id = @Id or b.customer_id = @Id");
             var list = await QueryBookingsAsync(sql, new { Id = bookingId });
             return list.FirstOrDefault();
         }
@@ -295,26 +303,31 @@ WHERE DATE(b.created_at) = CURRENT_DATE;
         public async Task<IReadOnlyList<BookingDTO>> GetMyBooking(Guid customerId)
         {
             var sql = $@"SELECT
-  b.booking_id     AS ""BookingId"",
-  b.customer_id    AS ""CustomerId"",
-  b.cleaner_id     AS ""CleanerId"",
-  b.booking_date   AS ""BookingDate"",
-  b.time_slot      AS ""TimeSlot"",
-  b.location_id    AS ""LocationId"",
-  b.address_detail AS ""AddressDetail"",
-  b.status         AS ""Status"",
-  b.notes          AS ""Notes"",
-  b.created_at     AS ""CreatedAt"",
-  d.booking_detail_id AS ""BookingDetailId"",
-  d.service_id        AS ""ServiceId"",
-  d.quantity          AS ""Quantity"",
-  d.price             AS ""Price"",
-  d.subtotal          AS ""Subtotal"",
-  d.remark            AS ""Remark"",
-  s.name              AS ""ServiceName""
+    b.booking_id      AS ""BookingId"",
+    u.user_id         AS ""CustomerId"",
+    u.full_name       AS ""CustomerName"",
+    u.phone           AS ""CustomerPhone"",
+    u1.user_id        AS ""CleanerId"",
+    u1.full_name      AS ""CleanerName"",
+    u1.phone          AS ""CleanerPhone"",
+    b.booking_date    AS ""BookingDate"",
+    b.time_slot       AS ""TimeSlot"",
+    b.status          AS ""Status"",
+    b.notes           AS ""Notes"",
+    b.address_detail  AS ""AddressDetail"",
+    b.created_at      AS ""CreatedAt"",
+    d.booking_detail_id AS ""BookingDetailId"",
+    d.service_id        AS ""ServiceId"",
+    s.name              AS ""ServiceName"",
+    d.quantity          AS ""Quantity"",
+    d.price             AS ""Price"",
+    d.subtotal          AS ""Subtotal"",
+    d.remark            AS ""Remark""
 FROM public.bookings b
-LEFT JOIN public.booking_details d ON d.booking_id = b.booking_id inner join services as s 
-on s.service_id = d.service_id 
+LEFT JOIN public.users u ON u.user_id = b.customer_id
+LEFT JOIN public.users u1 ON u1.user_id = b.cleaner_id
+LEFT JOIN public.booking_details d ON d.booking_id = b.booking_id
+LEFT JOIN public.services s ON s.service_id = d.service_id
   WHERE b.customer_id = '{customerId}'
 ORDER BY b.booking_date DESC, b.time_slot DESC, b.created_at DESC;";
             var result = await _db.DbConnection.QueryAsync<BookingDTO>(sql);

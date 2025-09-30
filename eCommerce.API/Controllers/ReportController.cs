@@ -78,7 +78,7 @@ namespace eCommerce.API.Controllers
         [HttpGet("top-customers-report")]
         [ProducesResponseType(typeof(IReadOnlyList<TopCustomerReportRow>), 200)]
         public async Task<ActionResult<IReadOnlyList<TopCustomerReportRow>>> GetTopCustomersReport(
-          [FromQuery] int limitCount = 10)
+          [FromQuery] int limitCount = 5)
         {
             var result = await _reportingService.GetTopCustomersReportAsync(limitCount);
             return Ok(result);
