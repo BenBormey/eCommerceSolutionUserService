@@ -1,5 +1,6 @@
 ﻿using eCommerce.Core.DTO.Dashboard;
 using eCommerce.Core.ServiceContracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ namespace eCommerce.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "admin")]
     public class DashboardController : ControllerBase
     {
         private readonly IDashboardService _dashboardService;

@@ -1,6 +1,7 @@
 ﻿using eCommerce.Core.DTO.Report;
 using eCommerce.Core.DTO.Review;
 using eCommerce.Core.ServiceContracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace eCommerce.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "admin")]
     public class ReviewController : ControllerBase
     {
         private readonly IReviewService _service;

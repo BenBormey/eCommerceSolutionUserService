@@ -72,6 +72,7 @@ namespace eCommerce.API.Controllers
 
 
         [HttpPut("UpdatePasswork")]
+
         public async Task<IActionResult> UpdatePassword(Guid? id,[FromBody] UpdatePasswordDto update)
         {
             if (!ModelState.IsValid)
