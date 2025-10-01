@@ -1,5 +1,7 @@
 ﻿using Dapper;
 using eCommerce.Core.DTO.Report;
+using eCommerce.Core.DTO.Report.Customer;
+using eCommerce.Core.DTO.Service;
 using eCommerce.Core.RepositoryContracts;
 using eCommerce.Infrastructure.DbContext;
 using System;
@@ -256,6 +258,86 @@ LIMIT 5;";
 
             var rows = await _context.DbConnection.QueryAsync<RecentBookingItemDTO>(sql);
             return rows.AsList();
+        }
+
+        public async Task<IReadOnlyList<CustomerBookingSummaryDto>> GetReportByCustomer()
+        {
+            var sql = $@"WITH payments_per_booking AS (
+  SELECT
+    booking_id,
+    SUM(amount) AS paid_amount
+  FROM public.payments
+  WHERE /* optional: only completed/paid payments */
+        (payment_status IS NULL OR payment_status = 'completed' OR payment_status = 'Paid')
+  GROUP BY booking_id
+),
+bookings_with_payment AS (
+  SELECT
+    b.booking_id,
+    b.customer_id,
+    b.created_at::date AS booking_date,
+    COALESCE(ppb.paid_amount, 0) AS paid_amount
+  FROM public.bookings b
+  LEFT JOIN payments_per_booking ppb ON ppb.booking_id = b.booking_id
+  -- Optional: filter date range (uncomment and set dates)
+  -- WHERE b.created_at::date BETWEEN '2025-10-01' AND '2025-10-31'
+)
+SELECT
+  u.user_id as UserId,
+  u.full_name as FullName,
+  COUNT(bwb.booking_id) AS TotalBookings,
+  SUM(bwb.paid_amount) AS TotalRevenue,
+  -- average value per booking for this customer
+  CASE WHEN COUNT(bwb.booking_id) = 0 THEN 0
+       ELSE ROUND(SUM(bwb.paid_amount)::numeric / COUNT(bwb.booking_id), 2)
+  END AS AvgBookingValue,
+  MIN(bwb.paid_amount) AS MinBookingValue,
+  MAX(bwb.paid_amount) AS MaxBookingValue
+FROM bookings_with_payment bwb
+JOIN public.users u ON u.user_id = bwb.customer_id
+
+GROUP BY u.user_id, u.full_name
+ORDER BY AvgBookingValue DESC;
+";
+
+            var reuslt = await _context.DbConnection.QueryAsync<CustomerBookingSummaryDto>(sql);
+            return (IReadOnlyList<CustomerBookingSummaryDto>)reuslt;  
+        }
+
+        public async Task<IEnumerable<ServiceReportDto>> GetServiceReportsAsync(DateTime? startDate = null, DateTime? endDate = null)
+        {
+           var sql  = @"WITH payments_per_booking AS (
+    SELECT
+        booking_id,
+        SUM(amount) AS paid_amount
+    FROM public.payments
+    WHERE payment_status IS NULL OR payment_status IN ('completed', 'Paid')
+    GROUP BY booking_id
+),
+bookings_with_payment AS (
+    SELECT
+        b.booking_id,
+        bd.service_id,
+        COALESCE(ppb.paid_amount, 0) AS paid_amount
+    FROM public.bookings b
+    INNER JOIN public.booking_details bd ON bd.booking_id = b.booking_id
+    LEFT JOIN payments_per_booking ppb ON ppb.booking_id = b.booking_id
+)
+
+SELECT
+    s.service_id as ServiceId,
+    s.name as Name,
+    s.duration_minutes as DurationMinutes,
+    COUNT(bwp.booking_id) AS TotalBookings,
+    SUM(bwp.paid_amount) AS TotalRevenue
+FROM bookings_with_payment bwp
+INNER JOIN public.services s ON s.service_id = bwp.service_id
+GROUP BY s.service_id, s.name, s.duration_minutes
+ORDER BY TotalBookings DESC;
+";
+
+            var reult = await _context.DbConnection.QueryAsync<ServiceReportDto>(sql);
+            return reult;
         }
     }
     

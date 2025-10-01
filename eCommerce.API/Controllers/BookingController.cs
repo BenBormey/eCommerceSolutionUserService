@@ -22,7 +22,7 @@ namespace eCommerce.API.Controllers
             _service = service;
         }
 
-        // GET: api/Booking/{id}
+
         [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(BookingDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -52,14 +52,14 @@ namespace eCommerce.API.Controllers
         public async Task<ActionResult<IEnumerable<BookingDTO>>> GetBookingCustomer(
       [FromQuery(Name = "customid")] Guid customerId)   // bind the exact query key
         {
-            var result = await _service.GetMyBooking(customerId); // Task<IReadOnlyList<BookingDTO>>
-            return Ok(result ?? new List<BookingDTO>());          // ✅ no casting
+            var result = await _service.GetMyBooking(customerId); 
+            return Ok(result ?? new List<BookingDTO>());         
         }
 
 
 
 
-        // GET: api/Booking/customer/{customerId}?from=2025-09-07&to=2025-09-10
+
         [HttpGet("customer/{customerId:guid}")]
         [ProducesResponseType(typeof(IEnumerable<BookingDTO>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetByCustomer(
@@ -71,7 +71,6 @@ namespace eCommerce.API.Controllers
             return Ok(items);
         }
 
-        // GET: api/Booking/cleaner/{cleanerId}?from=2025-09-07&to=2025-09-10
         [HttpGet("cleaner/{cleanerId:guid}")]
         [ProducesResponseType(typeof(IEnumerable<BookingDTO>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetByCleaner(
@@ -86,7 +85,7 @@ namespace eCommerce.API.Controllers
 
 
 
-        // POST: api/Booking
+ 
         [HttpPost]
         [ProducesResponseType(typeof(BookingDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -98,7 +97,6 @@ namespace eCommerce.API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = created.BookingId }, created);
         }
 
-        // PUT: api/Booking/{id}
         [HttpPut("{id:guid}")]
         [ProducesResponseType(typeof(BookingDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -114,7 +112,7 @@ namespace eCommerce.API.Controllers
             return Ok(updated);
         }
 
-        // DELETE: api/Booking/{id}
+
         [HttpDelete("{id:guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -125,20 +123,6 @@ namespace eCommerce.API.Controllers
             return NoContent();
         }
 
-
-
-        //[Authorize(Roles = "Cleaner")]
-        //// PATCH: api/Booking/{id}/confirm
-        //[HttpPatch("{id:guid}/confirm")]
-        //[ProducesResponseType(typeof(BookingDTO), StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //public async Task<IActionResult> Confirm(Guid id)
-        //{
-        //    var ok = await _service.ConfirmAsync(id);
-        //    if (!ok) return NotFound($"Booking {id} not found.");
-        //    var b = await _service.GetByIdAsync(id);
-        //    return Ok(b);
-        //}
 
 
         [HttpPatch("{id:guid}/confirm")]
@@ -163,7 +147,7 @@ namespace eCommerce.API.Controllers
 
 
 
-        // PATCH: api/Booking/{id}/complete
+
         [HttpPatch("{id:guid}/complete")]
         [ProducesResponseType(typeof(BookingDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -178,7 +162,7 @@ namespace eCommerce.API.Controllers
             return Ok();
         }
 
-        // PATCH: api/Booking/{id}/cancel
+   
         [HttpPatch("{id:guid}/cancel")]
         [ProducesResponseType(typeof(BookingDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

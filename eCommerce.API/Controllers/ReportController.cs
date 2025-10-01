@@ -114,7 +114,7 @@ namespace eCommerce.API.Controllers
             return Ok(row);
         }
 
-        // GET: /api/Dashboard/status?from=...&to=...
+      
         [HttpGet("status")]
         [ProducesResponseType(typeof(StatusBreakdownDTO), StatusCodes.Status200OK)]
         public async Task<IActionResult> Status([FromQuery] DateTime? from = null, [FromQuery] DateTime? to = null)
@@ -123,13 +123,38 @@ namespace eCommerce.API.Controllers
             return Ok(row);
         }
 
-        // GET: /api/Dashboard/recent?take=8
         [HttpGet("recent")]
         [ProducesResponseType(typeof(IEnumerable<RecentBookingItemDTO>), StatusCodes.Status200OK)]
         public async Task<IActionResult> Recent([FromQuery] int take = 8)
         {
             var items = await _reportingService.RecentBooking();
             return Ok(items);
+        }
+
+
+        [HttpGet("ReportByCustomer")]
+        public async Task<IActionResult> GetReportByCustomer()
+        {
+            var reult  =await _reportingService.GetReportByCustomer();
+            return Ok(reult);
+        }
+        [HttpGet("ReportByTopService")]
+        public async Task<IActionResult> GetTopService()
+        {
+            // Optional: filter by date range (example: last month)
+            DateTime startDate = DateTime.Now.AddMonths(-1);
+            DateTime endDate = DateTime.Now;
+
+            // Get report from repository
+            var report = await _reportingService.GetServiceReportsAsync(startDate, endDate);
+
+            // Order by total bookings or revenue descending
+            var topServices = report
+                .OrderByDescending(r => r.TotalBookings) // or TotalRevenue
+                .Take(10)  // top 10 services
+                .ToList();
+
+            return Ok(topServices);
         }
 
     }

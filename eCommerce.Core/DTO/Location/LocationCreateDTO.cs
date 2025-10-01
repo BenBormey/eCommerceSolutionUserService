@@ -18,5 +18,7 @@ namespace eCommerce.Core.DTO.Location
         [MaxLength(20)]
         public string? PostalCode { get; set; }
         public Guid user_id { get; set; }
+        public double latitude { get; set; }
+        public double longitude { get; set; }
     }
 }

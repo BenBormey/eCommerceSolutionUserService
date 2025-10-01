@@ -15,5 +15,7 @@ namespace eCommerce.Core.DTO.Location
         public DateTime CreatedAt { get; set; }
         public  Guid user_id { get; set; }
         public string full_name { get; set; }
+        public double latitude { get; set; }
+        public double longitude { get; set; }
     }
 }

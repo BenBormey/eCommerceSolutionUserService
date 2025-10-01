@@ -9,7 +9,7 @@ namespace eCommerce.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "admin")]
+
     public class ReviewController : ControllerBase
     {
         private readonly IReviewService _service;

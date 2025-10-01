@@ -1,4 +1,5 @@
-﻿using eCommerce.Core.ServiceContracts;
+﻿using eCommerce.Core.DTO.Customer;
+using eCommerce.Core.ServiceContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -81,6 +82,18 @@ namespace eCommerce.API.Controllers
             }
             return Ok(new { message = "Customer updated successfully" });
         }
+        //[HttpPut("updateCustomer")]
+        //public async Task<IActionResult> UpdateCustomer(Guid custId,EditCustomer dto)
+        //{
+        //    if(dto == null)
+        //    {
+        //        return BadRequest("Invalid customer data");
+        //    }
+        //      await usersService.UpdateCustomer(custId,dto);
+        //    return NoContent();
+           
+
+        //}
    
 
     }

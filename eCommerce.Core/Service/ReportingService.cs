@@ -1,4 +1,6 @@
 ﻿using eCommerce.Core.DTO.Report;
+using eCommerce.Core.DTO.Report.Customer;
+using eCommerce.Core.DTO.Service;
 using eCommerce.Core.RepositoryContracts;
 using eCommerce.Core.ServiceContracts;
 using System;
@@ -68,5 +70,11 @@ namespace eCommerce.Core.Service
 
         public Task<IReadOnlyList<RecentBookingItemDTO>> RecentBooking()
        => _reportRepository.RecentBooking();
+
+        public Task<IReadOnlyList<CustomerBookingSummaryDto>> GetReportByCustomer()
+            => _reportRepository.GetReportByCustomer();
+
+        public Task<IEnumerable<ServiceReportDto>> GetServiceReportsAsync(DateTime? startDate = null, DateTime? endDate = null)
+        => _reportRepository.GetServiceReportsAsync(startDate, endDate);
     }
 }

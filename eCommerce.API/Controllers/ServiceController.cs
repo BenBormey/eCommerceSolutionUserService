@@ -53,7 +53,7 @@ namespace eCommerce.API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = created.ServiceId }, created);
         }
 
-        // ✅ PUT: api/Service/5
+      
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] ServiceUpdateDTO dto)
         {
@@ -67,7 +67,7 @@ namespace eCommerce.API.Controllers
             return Ok(updated);
         }
 
-        // ✅ DELETE: api/Service/5
+        
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -78,7 +78,7 @@ namespace eCommerce.API.Controllers
             return NoContent();
         }
 
-        // ✅ PATCH: api/Service/5/toggle
+        
         [HttpPatch("{id:int}/toggle")]
         public async Task<IActionResult> ToggleActive(int id, [FromQuery] bool isActive)
         {

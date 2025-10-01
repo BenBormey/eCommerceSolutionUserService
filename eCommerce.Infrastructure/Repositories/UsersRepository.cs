@@ -168,7 +168,7 @@ order by full_name;";
     public async Task<bool> DeleteCustomer(Guid userId)
     {
         var sql = $@"
-delete from public.users where ""role"" = 'Customer' and user_id ='{userId}'
+delete from public.users where  user_id ='{userId}'
 ";
         var rows = await _context.DbConnection.ExecuteAsync(sql);
         return rows > 0;

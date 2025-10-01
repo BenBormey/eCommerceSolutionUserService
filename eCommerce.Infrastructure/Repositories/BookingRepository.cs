@@ -155,9 +155,9 @@ VALUES
 
             const string insertDetail = @"
 INSERT INTO public.booking_details
-(booking_detail_id, booking_id, service_id, quantity, price, remark)
+(booking_detail_id, booking_id, service_id, quantity, price, remark,subtotal)
 VALUES
-(@DetailId, @BookingId, @ServiceId, @Quantity, @Price, @Remark);";
+(@DetailId, @BookingId, @ServiceId, @Quantity, @Price, @Remark,@subtotal);";
 
 
             var id = Guid.NewGuid();
@@ -196,7 +196,7 @@ VALUES
                 // details
                 foreach (var item in dto.Items)
                 {
-                    var price = item.Price ?? 0m; // or lookup from services table
+                    var price = item.Price ?? 0m; 
                     var subtotal = price * item.Quantity;
 
                     await conn.ExecuteAsync(insertDetail, new
@@ -206,7 +206,9 @@ VALUES
                         ServiceId = item.ServiceId,   // int
                         Quantity = item.Quantity,
                         Price = item.Price ?? 0m,
-                        Remark = item.Remark
+                        Remark = item.Remark,
+                        subtotal
+                        
                     }, tx);
 
                 }

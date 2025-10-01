@@ -1,4 +1,6 @@
 ﻿using eCommerce.Core.DTO.Report;
+using eCommerce.Core.DTO.Report.Customer;
+using eCommerce.Core.DTO.Service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,6 +59,9 @@ namespace eCommerce.Core.RepositoryContracts
         Task<IReadOnlyList<StatusBreakdownDTO>> StatusBreakdown();
         Task<IReadOnlyList<RecentBookingItemDTO>> RecentBooking();
         Task<IReadOnlyList<ServicePopularityDTO>> GetServicePopularity();
+        Task<IReadOnlyList<CustomerBookingSummaryDto>> GetReportByCustomer();
+        Task<IEnumerable<ServiceReportDto>> GetServiceReportsAsync(DateTime? startDate = null, DateTime? endDate = null);
+
 
 
 

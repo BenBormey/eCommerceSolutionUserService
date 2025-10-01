@@ -12,5 +12,6 @@ namespace eCommerce.Core.DTO.Booking
         public int Quantity { get; set; } = 1;
         public decimal? Price { get; set; } // optional: backend can look up current price
         public string? Remark { get; set; }
+        public decimal subtotal => (decimal)Price * Quantity;
     }
 }
