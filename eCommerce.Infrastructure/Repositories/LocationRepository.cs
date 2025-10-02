@@ -102,7 +102,7 @@ s.user_id, s.full_name
             });
         }
 
-        // Delete
+       
         public async Task<bool> Delete(int locationId)
         {
             const string sql = @"update  public.locations set is_active = false  WHERE location_id = @LocationId;";
@@ -111,7 +111,7 @@ s.user_id, s.full_name
             return rows > 0;
         }
 
-        // Search
+      
         public async Task<IEnumerable<LocationDTO>> Search(string? city = null, string? district = null, string? postalCode = null)
         {
             const string sql = @"

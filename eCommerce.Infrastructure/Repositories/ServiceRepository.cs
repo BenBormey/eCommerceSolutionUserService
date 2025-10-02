@@ -37,7 +37,11 @@ namespace eCommerce.Infrastructure.Repositories
 
         public async  Task<bool> Delete(int serviceId)
         {
-            var query = @"DELETE FROM public.services WHERE service_id = @ServiceId;";
+            var query = @"
+        UPDATE public.services
+        SET is_active = false
+        WHERE service_id = @ServiceId;"
+           ;
 
             var affectedRows = await _context.DbConnection.ExecuteAsync(query, new { ServiceId = serviceId });
             return affectedRows > 0;
@@ -56,6 +60,7 @@ namespace eCommerce.Infrastructure.Repositories
     s.created_at,
     s.category_id  as  CategoryId
 FROM public.services AS s where s.category_id ='{categoryId}'
+and s.is_active = true
 ORDER BY s.created_at DESC";
             var result = await _context.DbConnection.QueryAsync<ServiceDTO>(query);
             return result;
@@ -74,6 +79,7 @@ ORDER BY s.created_at DESC";
     s.created_at,
     s.category_id  as  CategoryId
 FROM public.services AS s
+where is_active = true
 ORDER BY s.created_at DESC;
 ";
             var result  = await _context.DbConnection.QueryAsync<ServiceDTO>(query);
@@ -94,7 +100,7 @@ ORDER BY s.created_at DESC;
             s.created_at,
  s.category_id  as  CategoryId
         FROM public.services AS s
-        WHERE s.service_id = @ServiceId;
+        WHERE s.service_id = @ServiceId and is_active = true;
     ";
 
             var result = await _context.DbConnection.QueryFirstOrDefaultAsync<ServiceDTO>(
@@ -119,11 +125,6 @@ JOIN services s         ON s.service_id  = bd.service_id
 GROUP BY s.service_id, s.name
 ORDER BY Revenue DESC, s.service_id
 LIMIT 4;
-
-
-
-
-
 
 
 
@@ -154,7 +155,7 @@ LIMIT 4;
             price = @Price,
             duration_minutes = @DurationMinutes,
             image_url = @ImageUrl,
-            is_active = @IsActive,
+            is_active = true,
 category_id  = @CategoryId
         WHERE service_id = @ServiceId
         RETURNING 

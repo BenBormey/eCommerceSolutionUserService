@@ -50,7 +50,7 @@ namespace eCommerce.API.Controllers
         [HttpGet("Booking-Customer")]
         [ProducesResponseType(typeof(IEnumerable<BookingDTO>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<BookingDTO>>> GetBookingCustomer(
-      [FromQuery(Name = "customid")] Guid customerId)   // bind the exact query key
+      [FromQuery(Name = "customid")] Guid customerId)   
         {
             var result = await _service.GetMyBooking(customerId); 
             return Ok(result ?? new List<BookingDTO>());         

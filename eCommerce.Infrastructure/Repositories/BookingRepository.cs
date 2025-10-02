@@ -38,12 +38,15 @@ SELECT
     d.quantity          AS ""Quantity"",
     d.price             AS ""Price"",
     d.subtotal          AS ""Subtotal"",
-    d.remark            AS ""Remark""
+    d.remark            AS ""Remark"",
+	p.amount            AS  ""Amount"",
+	p.payment_id        as   ""PayMentId""
 FROM public.bookings b
 LEFT JOIN public.users u ON u.user_id = b.customer_id
 LEFT JOIN public.users u1 ON u1.user_id = b.cleaner_id
 LEFT JOIN public.booking_details d ON d.booking_id = b.booking_id
 LEFT JOIN public.services s ON s.service_id = d.service_id
+left join public.payments p on p.booking_id  = b.booking_id
 {extraWhere}
 ORDER BY b.booking_date DESC, b.time_slot DESC, b.created_at DESC;";
         }
@@ -324,12 +327,16 @@ WHERE DATE(b.created_at) = CURRENT_DATE;
     d.quantity          AS ""Quantity"",
     d.price             AS ""Price"",
     d.subtotal          AS ""Subtotal"",
-    d.remark            AS ""Remark""
+    d.remark            AS ""Remark"",
+	p.amount            AS  ""Amount"",
+	p.payment_id        as   ""PayMentId""
+	
 FROM public.bookings b
 LEFT JOIN public.users u ON u.user_id = b.customer_id
 LEFT JOIN public.users u1 ON u1.user_id = b.cleaner_id
 LEFT JOIN public.booking_details d ON d.booking_id = b.booking_id
-LEFT JOIN public.services s ON s.service_id = d.service_id
+LEFT JOIN public.services s ON s.service_id = d.service_id 
+left join public.payments p on p.booking_id  = b.booking_id
   WHERE b.customer_id = '{customerId}'
 ORDER BY b.booking_date DESC, b.time_slot DESC, b.created_at DESC;";
             var result = await _db.DbConnection.QueryAsync<BookingDTO>(sql);
