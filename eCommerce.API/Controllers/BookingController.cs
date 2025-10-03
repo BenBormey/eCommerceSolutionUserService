@@ -37,11 +37,6 @@ namespace eCommerce.API.Controllers
         public async Task<IActionResult> GetByBooking(Guid userid)
         {
            
-
-      
-      
-
-            // Query DB ដើម្បីយក booking របស់ userId
             var bookings = await _service.GetByIdAsync(userid);
 
             return Ok(bookings);
@@ -50,7 +45,7 @@ namespace eCommerce.API.Controllers
         [HttpGet("Booking-Customer")]
         [ProducesResponseType(typeof(IEnumerable<BookingDTO>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<BookingDTO>>> GetBookingCustomer(
-      [FromQuery(Name = "customid")] Guid customerId)   
+      [FromQuery(Name = "customid")] Guid customerId)   // bind the exact query key
         {
             var result = await _service.GetMyBooking(customerId); 
             return Ok(result ?? new List<BookingDTO>());         

@@ -19,34 +19,55 @@ namespace eCommerce.Infrastructure.Repositories
             return $@"
 
 SELECT
-    b.booking_id      AS ""BookingId"",
-    u.user_id         AS ""CustomerId"",
-    u.full_name       AS ""CustomerName"",
-    u.phone           AS ""CustomerPhone"",
-    u1.user_id        AS ""CleanerId"",
-    u1.full_name      AS ""CleanerName"",
-    u1.phone          AS ""CleanerPhone"",
-    b.booking_date    AS ""BookingDate"",
-    b.time_slot       AS ""TimeSlot"",
-    b.status          AS ""Status"",
-    b.notes           AS ""Notes"",
-    b.address_detail  AS ""AddressDetail"",
-    b.created_at      AS ""CreatedAt"",
-    d.booking_detail_id AS ""BookingDetailId"",
-    d.service_id        AS ""ServiceId"",
-    s.name              AS ""ServiceName"",
-    d.quantity          AS ""Quantity"",
-    d.price             AS ""Price"",
-    d.subtotal          AS ""Subtotal"",
-    d.remark            AS ""Remark"",
-	p.amount            AS  ""Amount"",
-	p.payment_id        as   ""PayMentId""
+    b.booking_id            AS ""BookingId"",
+    u.user_id               AS ""CustomerId"",
+    u.full_name             AS ""CustomerName"",
+    u.phone                 AS ""CustomerPhone"",
+    u1.user_id              AS ""CleanerId"",
+    u1.full_name            AS ""CleanerName"",
+    u1.phone                AS ""CleanerPhone"",
+    b.booking_date          AS ""BookingDate"",
+    b.time_slot             AS ""TimeSlot"",
+    b.status                AS ""Status"",
+    b.notes                 AS ""Notes"",
+    b.address_detail        AS ""AddressDetail"",
+    b.created_at            AS ""CreatedAt"",
+
+    -- Recurring & Discount Fields
+    b.is_recurring          AS ""IsRecurring"",
+    b.recurrence_plan       AS ""RecurrencePlan"",
+    b.end_date              AS ""EndDate"",
+    b.discount_percentage   AS ""DiscountPercentage"",
+    b.discount_amount       AS ""DiscountAmount"",
+    b.amount                AS ""TotalAmountFinal"", 
+
+    -- ✅ Payment Info (UPDATED WITH COALESCE - This is essential)
+    p_latest.amount         AS ""AmountPaid"", 
+    p_latest.payment_id     AS ""PaymentId"",
+    COALESCE(p_latest.payment_status, 'Unpaid') AS ""PaymentStatus"", -- Sets 'Unpaid' if no payment record found
+
+    -- Booking Details (Split starts here)
+    d.booking_detail_id     AS ""BookingDetailId"", 
+    d.service_id            AS ""ServiceId"",
+    s.name                  AS ""ServiceName"",
+    d.quantity              AS ""Quantity"",
+    d.price                 AS ""Price"",
+    d.subtotal              AS ""Subtotal"",
+    d.remark                AS ""Remark""
 FROM public.bookings b
 LEFT JOIN public.users u ON u.user_id = b.customer_id
 LEFT JOIN public.users u1 ON u1.user_id = b.cleaner_id
 LEFT JOIN public.booking_details d ON d.booking_id = b.booking_id
-LEFT JOIN public.services s ON s.service_id = d.service_id
-left join public.payments p on p.booking_id  = b.booking_id
+LEFT JOIN public.services s ON s.service_id = d.service_id 
+
+-- LATERAL JOIN to find the latest payment record (if any)
+LEFT JOIN LATERAL (
+    SELECT amount, payment_id, payment_status
+    FROM public.payments p_inner
+    WHERE p_inner.booking_id = b.booking_id
+    ORDER BY p_inner.created_at DESC 
+    LIMIT 1
+) AS p_latest ON TRUE
 {extraWhere}
 ORDER BY b.booking_date DESC, b.time_slot DESC, b.created_at DESC;";
         }
@@ -150,30 +171,44 @@ AND
                 throw new ArgumentException("Items must contain at least one service.");
             }
 
+            // 1. UPDATED SQL: Includes all new recurring and discount columns
             const string insertBooking = @"
 INSERT INTO public.bookings
-(booking_id, customer_id, cleaner_id, booking_date, time_slot, location_id, address_detail, status, notes, created_at,amount)
+(booking_id, customer_id, cleaner_id, booking_date, time_slot, location_id, address_detail, status, notes, created_at, amount,
+ is_recurring, recurrence_plan, end_date, discount_percentage, discount_amount)
 VALUES
-(@Id, @CustomerId, @CleanerId, @BookingDate, @TimeSlot, @LocationId, @AddressDetail, 'Pending', @Notes, timezone('utc', now()),@amount);";
+(@Id, @CustomerId, @CleanerId, @BookingDate, @TimeSlot, @LocationId, @AddressDetail, 'Pending', @Notes, timezone('utc', now()), @TotalAmount,
+ @IsRecurring, @RecurrencePlan, @EndDate, @DiscountPercentage, @DiscountAmount);";
 
             const string insertDetail = @"
 INSERT INTO public.booking_details
-(booking_detail_id, booking_id, service_id, quantity, price, remark,subtotal)
+(booking_detail_id, booking_id, service_id, quantity, price, remark, subtotal)
 VALUES
-(@DetailId, @BookingId, @ServiceId, @Quantity, @Price, @Remark,@subtotal);";
+(@DetailId, @BookingId, @ServiceId, @Quantity, @Price, @Remark, @subtotal);";
 
 
             var id = Guid.NewGuid();
+            decimal subtotal = 0m;
 
-            decimal total = 0m;
-
-            // pre-calc total from items
+            // 2. Calculate Subtotal (Pre-Discount Total)
             foreach (var item in dto.Items)
             {
                 var price = item.Price ?? 0m;
                 var qty = item.Quantity;
-                total += price * qty;
+                subtotal += price * qty;
             }
+
+            // 3. Calculate Discount and Final Total
+            decimal discountPct = dto.DiscountPercentage ?? 0m;
+            decimal discountAmount = subtotal * (discountPct / 100m);
+            decimal finalTotalAmount = subtotal - discountAmount;
+
+            // Ensure negative discount (credit) is not applied if percentage is negative/invalid
+            if (discountAmount < 0) discountAmount = 0m;
+            if (finalTotalAmount < 0) finalTotalAmount = 0m;
+
+            // Use the final calculated amount as the "amount" stored in the bookings table
+            // (Note: Your original column was called 'amount', we map finalTotalAmount to it)
 
             using var conn = _db.DbConnection;
             if (conn.State != ConnectionState.Open) conn.Open();
@@ -191,27 +226,32 @@ VALUES
                     dto.TimeSlot,
                     dto.LocationId,
                     dto.AddressDetail,
-                    dto.Notes  ,
-                    amount = total
+                    dto.Notes,
+                    TotalAmount = finalTotalAmount, // Mapped to 'amount' column in SQL
 
+                    // 4. NEW PARAMETERS
+                    IsRecurring = dto.IsRecurring ?? false, // Default to false
+                    RecurrencePlan = dto.RecurrencePlan,
+                    EndDate = dto.EndDate,
+                    DiscountPercentage = discountPct,
+                    DiscountAmount = discountAmount // The calculated amount
                 }, tx);
 
                 // details
                 foreach (var item in dto.Items)
                 {
-                    var price = item.Price ?? 0m; 
-                    var subtotal = price * item.Quantity;
+                    var price = item.Price ?? 0m;
+                    var itemSubtotal = price * item.Quantity; // Renamed to itemSubtotal for clarity
 
                     await conn.ExecuteAsync(insertDetail, new
                     {
                         DetailId = Guid.NewGuid(),
                         BookingId = id,
-                        ServiceId = item.ServiceId,   // int
+                        ServiceId = item.ServiceId,
                         Quantity = item.Quantity,
                         Price = item.Price ?? 0m,
                         Remark = item.Remark,
-                        subtotal
-                        
+                        subtotal = itemSubtotal // Subtotal for the individual line item
                     }, tx);
 
                 }
@@ -305,42 +345,100 @@ WHERE DATE(b.created_at) = CURRENT_DATE;
 
         }
 
+
+
         public async Task<IReadOnlyList<BookingDTO>> GetMyBooking(Guid customerId)
         {
-            var sql = $@"SELECT
-    b.booking_id      AS ""BookingId"",
-    u.user_id         AS ""CustomerId"",
-    u.full_name       AS ""CustomerName"",
-    u.phone           AS ""CustomerPhone"",
-    u1.user_id        AS ""CleanerId"",
-    u1.full_name      AS ""CleanerName"",
-    u1.phone          AS ""CleanerPhone"",
-    b.booking_date    AS ""BookingDate"",
-    b.time_slot       AS ""TimeSlot"",
-    b.status          AS ""Status"",
-    b.notes           AS ""Notes"",
-    b.address_detail  AS ""AddressDetail"",
-    b.created_at      AS ""CreatedAt"",
-    d.booking_detail_id AS ""BookingDetailId"",
-    d.service_id        AS ""ServiceId"",
-    s.name              AS ""ServiceName"",
-    d.quantity          AS ""Quantity"",
-    d.price             AS ""Price"",
-    d.subtotal          AS ""Subtotal"",
-    d.remark            AS ""Remark"",
-	p.amount            AS  ""Amount"",
-	p.payment_id        as   ""PayMentId""
-	
+            var sql = @"
+SELECT
+    b.booking_id            AS ""BookingId"",
+    u.user_id               AS ""CustomerId"",
+    u.full_name             AS ""CustomerName"",
+    u.phone                 AS ""CustomerPhone"",
+    u1.user_id              AS ""CleanerId"",
+    u1.full_name            AS ""CleanerName"",
+    u1.phone                AS ""CleanerPhone"",
+    b.booking_date          AS ""BookingDate"",
+    b.time_slot             AS ""TimeSlot"",
+    b.status                AS ""Status"",
+    b.notes                 AS ""Notes"",
+    b.address_detail        AS ""AddressDetail"",
+    b.created_at            AS ""CreatedAt"",
+
+    -- Recurring & Discount Fields
+    b.is_recurring          AS ""IsRecurring"",
+    b.recurrence_plan       AS ""RecurrencePlan"",
+    b.end_date              AS ""EndDate"",
+    b.discount_percentage   AS ""DiscountPercentage"",
+    b.discount_amount       AS ""DiscountAmount"",
+    b.amount                AS ""TotalAmountFinal"", 
+
+    -- ✅ Payment Info (UPDATED WITH COALESCE - This is essential)
+    p_latest.amount         AS ""AmountPaid"", 
+    p_latest.payment_id     AS ""PaymentId"",
+    COALESCE(p_latest.payment_status, 'Unpaid') AS ""PaymentStatus"", -- Sets 'Unpaid' if no payment record found
+
+    -- Booking Details (Split starts here)
+    d.booking_detail_id     AS ""BookingDetailId"", 
+    d.service_id            AS ""ServiceId"",
+    s.name                  AS ""ServiceName"",
+    d.quantity              AS ""Quantity"",
+    d.price                 AS ""Price"",
+    d.subtotal              AS ""Subtotal"",
+    d.remark                AS ""Remark""
 FROM public.bookings b
 LEFT JOIN public.users u ON u.user_id = b.customer_id
 LEFT JOIN public.users u1 ON u1.user_id = b.cleaner_id
 LEFT JOIN public.booking_details d ON d.booking_id = b.booking_id
 LEFT JOIN public.services s ON s.service_id = d.service_id 
-left join public.payments p on p.booking_id  = b.booking_id
-  WHERE b.customer_id = '{customerId}'
+
+-- LATERAL JOIN to find the latest payment record (if any)
+LEFT JOIN LATERAL (
+    SELECT amount, payment_id, payment_status
+    FROM public.payments p_inner
+    WHERE p_inner.booking_id = b.booking_id
+    ORDER BY p_inner.created_at DESC 
+    LIMIT 1
+) AS p_latest ON TRUE
+WHERE b.customer_id = @CustomerId
 ORDER BY b.booking_date DESC, b.time_slot DESC, b.created_at DESC;";
-            var result = await _db.DbConnection.QueryAsync<BookingDTO>(sql);
-            return (IReadOnlyList<BookingDTO>)result;
+
+            var bookingDictionary = new Dictionary<Guid, BookingDTO>();
+
+            // Assuming _db is your database context/factory
+            using var conn = _db.DbConnection;
+            if (conn.State != ConnectionState.Open) conn.Open();
+
+            var result = await conn.QueryAsync<BookingDTO, BookingDetailDTO, BookingDTO>(
+                sql,
+                (booking, detail) =>
+                {
+                    if (!bookingDictionary.TryGetValue(booking.BookingId, out var existingBooking))
+                    {
+                        // Dapper successfully mapped the non-split part (including payment info) 
+                        // into this 'booking' object. Use it directly.
+                        existingBooking = booking;
+                        existingBooking.Details = new List<BookingDetailDTO>();
+
+                        bookingDictionary.Add(existingBooking.BookingId, existingBooking);
+                    }
+
+                    // Add details
+                    if (detail != null)
+                    {
+                        if (!existingBooking.Details.Any(d => d.BookingDetailId == detail.BookingDetailId))
+                        {
+                            existingBooking.Details.Add(detail);
+                        }
+                    }
+
+                    return existingBooking;
+                },
+                new { CustomerId = customerId },
+                splitOn: "BookingDetailId"
+            );
+
+            return bookingDictionary.Values.ToList();
         }
     }
 }

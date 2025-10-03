@@ -23,6 +23,7 @@ namespace eCommerce.Core.RepositoryContracts
         Task<bool> UpdateCustomer(Guid custId, EditCustomer customer);    
         Task<bool> DeleteCustomer(Guid userId);
         //Task<IEnumerable<CustomerDTO>> GetUserByID(Guid userId );
+        Task<IEnumerable<CleanerEarningsSummaryDto>> GetAllCleanerEarningsSummaries(Guid? cleaid);
        
 
     }

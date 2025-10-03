@@ -20,7 +20,10 @@ namespace eCommerce.Core.DTO.Booking
         public int? LocationId { get; set; }
         public string? AddressDetail { get; set; }
         public string? Notes { get; set; }
-
+        public bool? IsRecurring { get; set; }
+        public string? RecurrencePlan { get; set; }
+        public DateTime? EndDate { get; set; }
+        public decimal? DiscountPercentage { get; set; } 
         // NEW: multiple services
         [Required, MinLength(1)]
         public List<BookingItemDTO> Items { get; set; } = new();

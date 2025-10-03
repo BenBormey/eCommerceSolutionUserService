@@ -27,6 +27,12 @@ public class UserService : IUsersService
         return true;
     }
 
+    public async Task<IEnumerable<CleanerEarningsSummaryDto>> GetAllCleanerEarningsSummaries(Guid? cleaid)
+    {
+        var result = await _usersRepository.GetAllCleanerEarningsSummaries(cleaid);
+        return result;
+    }
+
     public async Task<IEnumerable<CustomerDTO>> GetAllCustomer(string role)
     {
         var result  = await _usersRepository.GetAllCustomer(role);

@@ -194,6 +194,54 @@ delete from public.users where  user_id ='{userId}'
         return rows > 0;
     }
 
+    public async Task<IEnumerable<CleanerEarningsSummaryDto>> GetAllCleanerEarningsSummaries(Guid? cleanerId)
+    {
+        var sql = @"
+    SELECT
+        cl.user_id AS CleanerId,
+        cl.full_name AS CleanerName,
+        cl.email AS CleanerEmail,
+        
+        COALESCE(SUM(b.amount), 0.00) AS TotalGrossEarnings,
+        
+        COALESCE(SUM(CASE 
+            WHEN p.payment_status = 'Completed' THEN p.amount 
+            ELSE 0 
+        END), 0.00) AS TotalPaidToCleaner,
+        
+        COALESCE(SUM(b.amount) - SUM(CASE 
+            WHEN p.payment_status = 'Completed' THEN p.amount 
+            ELSE 0 
+        END), 0.00) AS TotalPendingPayment,
+
+        COUNT(b.booking_id) AS TotalJobsAssigned
+
+    FROM 
+        public.users cl
+    LEFT JOIN 
+        public.bookings b ON cl.user_id = b.cleaner_id
+    LEFT JOIN 
+        public.payments p ON b.booking_id = p.booking_id
+    WHERE 
+        cl.role = 'Cleaner'     AND (@CleanerId IS NULL OR cl.user_id = @CleanerId)
+
+    GROUP BY
+        cl.user_id, cl.full_name, cl.email
+
+    ORDER BY 
+        TotalGrossEarnings DESC;";
+
+        // 1. Correct Dapper Execution and Mapping
+        //    The generic type must be the ITEM type (CleanerEarningsSummaryDto), not IEnumerable<T>
+        var result = await _context.DbConnection.QueryAsync<CleanerEarningsSummaryDto>(
+            sql,
+            new { CleanerId = cleanerId } // 2. Pass the parameter object
+        );
+
+        // Dapper's QueryAsync already returns an IEnumerable<T>, no need for explicit casting 
+        return result;
+    }
+
 
     //    public async Task<IEnumerable<CustomerDTO>> GetUserByID(Guid userId)
     //    {

@@ -21,6 +21,7 @@ public interface IUsersService
     Task<CustomerDTO?> GetCustomerById(Guid userId,string role);
     Task<bool> UpdateCustomer(Guid customerid, EditCustomer customer);
     Task<bool> DeleteCustomer(Guid userId);
+    Task<IEnumerable<CleanerEarningsSummaryDto>> GetAllCleanerEarningsSummaries(Guid? cleaid);
 
     //Task<IEnumerable<CustomerDTO>> GetUserByID(Guid userId);
 }

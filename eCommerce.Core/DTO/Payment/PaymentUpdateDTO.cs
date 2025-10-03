@@ -13,7 +13,7 @@ namespace eCommerce.Core.DTO.Payment
         public string? Method { get; set; }
         public string? PaymentStatus { get; set; }
         public string? TransactionId { get; set; }
-        public DateTime? PaidAt { get; set; }
+
 
     }
 }

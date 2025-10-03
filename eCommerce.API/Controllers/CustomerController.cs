@@ -3,6 +3,7 @@ using eCommerce.Core.ServiceContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace eCommerce.API.Controllers
 {
@@ -37,8 +38,8 @@ namespace eCommerce.API.Controllers
             }
             return Ok(result);
         }
+
         [HttpGet("GetCleaner")]
-        
         public async Task<IActionResult> GetCleaner()
         {
             string role = "Cleaner";
@@ -91,9 +92,39 @@ namespace eCommerce.API.Controllers
         //    }
         //      await usersService.UpdateCustomer(custId,dto);
         //    return NoContent();
-           
+
 
         //}
+        [HttpGet("Earnings")]
+        public async Task<IActionResult> Getearnigns()
+        {
+            var isAdmin = User.IsInRole("admin");
+
+        
+            Guid? cleanerId = null;
+
+            if (isAdmin)
+            {
+          
+                cleanerId = null;
+            }
+            else
+            {
+                // Cleaner Case: Extract the specific ID from the token
+                var cleanerIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                                   ?? User.FindFirst(ClaimTypes.Name)?.Value;
+
+                if (!Guid.TryParse(cleanerIdClaim, out var idFromClaim))
+                    return Unauthorized("Invalid cleaner identity.");
+
+                cleanerId = idFromClaim;
+            }
+
+            // 3. Call the service with the determined parameter
+            var result = await usersService.GetAllCleanerEarningsSummaries(cleanerId);
+            return Ok(result);
+
+        }
    
 
     }

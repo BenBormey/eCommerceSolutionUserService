@@ -73,12 +73,11 @@ RETURNING
         {
             const string sql = @"
 UPDATE public.payments
-SET amount          = COALESCE(@Amount, amount),
-    method          = COALESCE(@Method, method),
+SET amount          = COALESCE(@Amount, amount) +amount ,
+    method          = COALESCE(@Method, method) ,
     payment_status  = COALESCE(@PaymentStatus, payment_status),
-    transaction_id  = COALESCE(@TransactionId, transaction_id),
-    paid_at         = @PaidAt
-WHERE payment_id = @Id
+    transaction_id  = COALESCE(@TransactionId, transaction_id)
+WHERE booking_id = @Id
 RETURNING
   payment_id      AS ""PaymentId"",
   booking_id      AS ""BookingId"",
@@ -95,8 +94,7 @@ RETURNING
                 dto.Amount,
                 dto.Method,
                 dto.PaymentStatus,
-                dto.TransactionId,
-                dto.PaidAt
+                dto.TransactionId
             });
         }
 
