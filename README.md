@@ -1,35 +1,57 @@
-eCommerceSolutionUserService
-🛍️ Overview
+CleanCity Booking Service 🧹
+Overview
 
-The eCommerceSolutionUserService is a backend service designed to manage user-related functionalities in an e-commerce platform. Built using C#, this service handles user authentication, profile management, and integrates seamlessly with other components of the e-commerce solution.
+CleanCity Booking Service is a full-stack web application designed for managing cleaning service bookings. Customers can select service plans, schedule dates, choose locations, and make secure payments. The system supports recurring bookings with automatic end-date calculation and partial or full payment options via QR code.
 
-🚀 Features
+Features
+Booking & Plans
 
-User Registration & Authentication: Secure user sign-up and login mechanisms.
+One-time, Bi-weekly (8% discount), Monthly (15% discount) plans.
 
-Profile Management: Allows users to update personal information and preferences.
+Automatic end-date calculation for recurring bookings.
 
-Integration Ready: Easily connects with other services like product catalogs and order management.
+Add customer notes and detailed address.
 
-🧰 Technologies Used
+Customer Management
 
-C#: Primary programming language.
+Secure login and authentication for customers.
 
-ASP.NET Core: Framework for building the API.
+Profile management with booking history.
 
-Entity Framework Core: ORM for database interactions.
+Payment Integration
 
-Docker: Containerization for consistent deployment.
+Partial (30%) upfront payment or full payment.
 
-📦 Getting Started
+QR code for payment simulation.
+
+Service & Location Management
+
+List of cleaning services with price and quantity selection.
+
+Predefined locations with the option to add new ones.
+
+Technology Stack
+
+Frontend: Vue 3, Vue Router, Composition API, Pinia
+
+Backend: ASP.NET Core Web API
+
+Database: SQL Server
+
+Authentication: JWT-based login
+
+Payment: QR code simulation
+
+State Management: Pinia (for cart management)
+
+Getting Started
 Prerequisites
 
-Ensure you have the following installed:
+.NET 8 SDK
 
-.NET SDK
- (version 6.0 or higher)
+Node.js 18+
 
-Docker
+SQL Server (or compatible database)
 
 Installation
 
@@ -39,41 +61,61 @@ git clone https://github.com/BenBormey/eCommerceSolutionUserService.git
 cd eCommerceSolutionUserService
 
 
-Restore dependencies:
+Install frontend dependencies:
 
+cd client
+npm install
+
+
+Run the frontend:
+
+npm run dev
+
+
+Run the backend:
+
+cd ../server
 dotnet restore
-
-
-Build the solution:
-
-dotnet build
-
-Running the Service
-
-To run the service locally:
-
 dotnet run
 
 
-Alternatively, to run using Docker:
+Access the app at:
 
-docker build -t ecommerce-userservice .
-docker run -p 5000:80 ecommerce-userservice
+Frontend: http://localhost:5173
 
+API: http://localhost:5000
 
-The service will be available at http://localhost:5000.
+Booking Flow
 
-🧪 Testing
+Login or register as a customer.
 
-Unit tests are located in the eCommerceSolutionUserService.Tests directory. To run them:
+Select a cleaning plan (One-time, Bi-weekly, Monthly).
 
+Choose location and add detailed address.
+
+Select date & time for service.
+
+Review summary and choose payment option (30% partial or 100% full).
+
+Confirm booking and scan QR for payment.
+
+Testing
+
+Run backend tests:
+
+cd server
 dotnet test
 
-🤝 Contributing
+Contribution
 
-Contributions are welcome! Please fork the repository, create a new branch, and submit a pull request with your proposed changes.
+Contributions are welcome!
 
-📄 License
+Fork the repository
 
-This project is licensed under the MIT License - see the LICENSE
- file for details.
+Create your feature branch (git checkout -b feature/my-feature)
+
+Commit your changes (git commit -am 'Add new feature')
+
+Push to the branch (git push origin feature/my-feature)
+
+Open a Pull Request
