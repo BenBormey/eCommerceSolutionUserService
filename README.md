@@ -36,7 +36,7 @@ Frontend: Vue 3, Vue Router, Composition API, Pinia
 
 Backend: ASP.NET Core Web API
 
-Database: SQL Server
+Database: postgre Server
 
 Authentication: JWT-based login
 
