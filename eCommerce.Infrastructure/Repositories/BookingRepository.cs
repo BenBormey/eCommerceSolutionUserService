@@ -347,7 +347,7 @@ WHERE DATE(b.created_at) = CURRENT_DATE;
 
 
 
-        public async Task<IReadOnlyList<BookingDTO>> GetMyBooking(Guid customerId)
+        public async Task<IReadOnlyList<BookingDTO>> GetMyBooking(Guid? customerId)
         {
             var sql = @"
 SELECT
@@ -400,7 +400,7 @@ LEFT JOIN LATERAL (
     ORDER BY p_inner.created_at DESC 
     LIMIT 1
 ) AS p_latest ON TRUE
-WHERE b.customer_id = @CustomerId
+WHERE b.customer_id = @CustomerId  or @CustomerId IS NULL
 ORDER BY b.booking_date DESC, b.time_slot DESC, b.created_at DESC;";
 
             var bookingDictionary = new Dictionary<Guid, BookingDTO>();

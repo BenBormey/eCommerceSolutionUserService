@@ -23,6 +23,19 @@ namespace eCommerce.API.Controllers
         }
 
 
+        [HttpGet("GetAll")]
+        public async    Task<IActionResult> GetBooking()
+        {
+            Guid? bookid = null;
+
+
+            var iteam = await _service.GetMyBooking(bookid);
+            return Ok(iteam);
+        }
+
+
+
+
         [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(BookingDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

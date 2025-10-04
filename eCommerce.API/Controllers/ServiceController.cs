@@ -18,7 +18,7 @@ namespace eCommerce.API.Controllers
             _serviceService = serviceService;
         }
 
-        // ✅ GET: api/Service
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -42,7 +42,7 @@ namespace eCommerce.API.Controllers
             return Ok(service);
         }
 
-        // ✅ POST: api/Service
+        
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ServiceCreateDTO dto)
         {

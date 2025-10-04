@@ -14,19 +14,16 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ----------------------------
-// Services
-// ----------------------------
+
 builder.Services.AddControllers()
     .AddJsonOptions(o =>
     {
-        // Configure JSON options here if needed
-        // o.JsonSerializerOptions.PropertyNamingPolicy = null;
+    
     });
 
 builder.Services.AddEndpointsApiExplorer();
 
-// ✅ Swagger with Bearer JWT support
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -78,18 +75,15 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()
     );
 });
-//builder.Services.AddCors(o => o.AddPolicy("web", p => {
-//    p.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod();
-//}));
 
 
 
-// JWT Options binding
+
+
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 var jwtOpts = builder.Configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();
 var keyBytes = Encoding.UTF8.GetBytes(jwtOpts.SecretKey ?? string.Empty);
 
-// Authentication + JWT Bearer
 builder.Services
     .AddAuthentication(options =>
     {
@@ -98,7 +92,7 @@ builder.Services
     })
     .AddJwtBearer(options =>
     {
-        options.RequireHttpsMetadata = false; // set true in production if behind HTTPS
+        options.RequireHttpsMetadata = false;
         options.SaveToken = true;
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -112,15 +106,12 @@ builder.Services
             ValidAudience = jwtOpts.Audience,
 
             ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero // reject expired tokens immediately
+            ClockSkew = TimeSpan.Zero 
         };
     });
 
 var app = builder.Build();
 
-// ----------------------------
-// Pipeline
-// ----------------------------
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -140,7 +131,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// A tiny test endpoint group (optional)
+
 app.MapGet("/", () => Results.Ok(new { ok = true, service = "eCommerce API" }));
 
 app.Run();

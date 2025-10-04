@@ -77,7 +77,7 @@ namespace eCommerce.Core.Service
             return await _repo.CountBooking();
         }
 
-        public async Task<IReadOnlyList<BookingDTO>> GetMyBooking(Guid customerId)
+        public async Task<IReadOnlyList<BookingDTO>> GetMyBooking(Guid? customerId)
         {
             var result  = await _repo.GetMyBooking(customerId);
             return (IReadOnlyList<BookingDTO>)result;

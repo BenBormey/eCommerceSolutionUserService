@@ -29,7 +29,7 @@ namespace eCommerce.Core.RepositoryContracts
         Task<bool> ChangeStatus(Guid bookingId, string status, Guid cleanerId);
 
         Task<bool> ExistsAsync(Guid bookingId);
-        Task<IReadOnlyList<BookingDTO>> GetMyBooking(Guid customerId);
+        Task<IReadOnlyList<BookingDTO>> GetMyBooking(Guid? customerId);
 
     }
 }

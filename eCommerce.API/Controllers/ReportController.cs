@@ -20,6 +20,7 @@ namespace eCommerce.API.Controllers
 
         // GET api/report/customer-report?fromDate=2025-09-01&toDate=2025-09-07&search=&sort=last&skip=0&take=50
         [HttpGet("customer-report")]
+        
         public async Task<ActionResult<IReadOnlyList<CustomerReportRow>>> GetCustomerReport(
             [FromQuery] DateTime? fromDate,
             [FromQuery] DateTime? toDate,

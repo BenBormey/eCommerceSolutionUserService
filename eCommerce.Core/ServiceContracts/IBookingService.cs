@@ -24,6 +24,6 @@ namespace eCommerce.Core.ServiceContracts
         Task<bool> CancelAsync(Guid bookingId, Guid cleanerId);
         Task<IEnumerable<BookingDTO>> ListForCleanerAsync( string status, DateTime? from, DateTime? to, Guid? cleaid);
         Task<int> CountBooking();
-        Task<IReadOnlyList<BookingDTO>> GetMyBooking(Guid customerId);
+        Task<IReadOnlyList<BookingDTO>> GetMyBooking(Guid? customerId);
     }
 }
