@@ -9,7 +9,7 @@ namespace eCommerce.Core.DTO.Report
     public class LocationReportRow
    {
    public int LocationId { get; set; }
-    public string city { get; set; } = "";
+    public string LocationName { get; set; } = "";
     public int TotalBookings { get; set; }
 }
 }

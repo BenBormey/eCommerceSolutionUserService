@@ -165,7 +165,7 @@ FROM public.get_customer_report_v2(
                 return rows.AsList();
             }
 
-            // 9. Location Report
+           
             public async Task<IReadOnlyList<LocationReportRow>> GetLocationReportAsync()
             {
                 const string sql = @"SELECT * FROM public.get_location_report();";
